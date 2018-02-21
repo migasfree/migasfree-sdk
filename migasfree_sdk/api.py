@@ -77,7 +77,9 @@ class ApiToken(object):
                             with open(_token_file, 'w') as handle:
                                 handle.write(r.json()['token'])
                     else:
-                        raise Exception('Status code {}'.format(r.status_code))
+                        raise Exception(_('Status code {}').format(r.status_code))
+                else:
+                    raise Exception(_('Can not continue without password'))
             else:
                 with open(_token_file) as handle:
                     self.set_token(handle.read())
@@ -209,6 +211,18 @@ class ApiToken(object):
         return status == requests.codes.forbidden
 
     @staticmethod
+    def is_zenity():
+        cmd = 'which zenity'
+        try:
+            ret = subprocess.check_output(
+                cmd, stderr=subprocess.STDOUT, shell=True
+            )
+        except subprocess.CalledProcessError:
+            return False
+
+        return True if ret else False
+
+    @staticmethod
     def is_tty():
         return os.environ.get('TERM', 'linux') == 'linux'
 
@@ -231,9 +245,13 @@ class ApiToken(object):
         )
 
     def get_server(self):
-        cmd = "zenity --title 'MigasfreeSdk' --entry --text='Server:' --entry-text='localhost' 2>/dev/null"
-        if self.is_tty():
-            cmd = "dialog --title 'MigasfreeSdk' --inputbox 'Server:' 0 0 'localhost' --stdout"
+        cmd = "zenity --title 'MigasfreeSdk' --entry --text='{}:' --entry-text='localhost' 2>/dev/null".format(
+            _('Server')
+        )
+        if self.is_tty() or not self.is_zenity():
+            cmd = "dialog --title 'MigasfreeSdk' --inputbox '{}:' 0 0 'localhost' --stdout".format(
+                _('Server')
+            )
         try:
             server = subprocess.check_output(
                 cmd, stderr=subprocess.STDOUT, shell=True
@@ -244,12 +262,14 @@ class ApiToken(object):
         return server.replace("\n", "")
 
     def get_user(self):
-        cmd = "zenity --title 'MigasfreeSdk @ {}' --entry --text='User:' 2>/dev/null".format(
-            self.server
+        cmd = "zenity --title 'MigasfreeSdk @ {}' --entry --text='{}:' 2>/dev/null".format(
+            self.server,
+            _('User')
         )
-        if self.is_tty():
-            cmd = "dialog --title 'MigasfreeSdk @ {}' --inputbox 'User:' 0 0 --stdout".format(
-                self.server
+        if self.is_tty() or not self.is_zenity():
+            cmd = "dialog --title 'MigasfreeSdk @ {}' --inputbox '{}:' 0 0 --stdout".format(
+                self.server,
+                _('User')
             )
         try:
             user = subprocess.check_output(
@@ -265,10 +285,11 @@ class ApiToken(object):
             self.user,
             self.server
         )
-        if self.is_tty():
-            cmd = "dialog --title 'MigasfreeSdk {} @ {}' --passwordbox 'Password:' 0 0 --stdout".format(
+        if self.is_tty() or not self.is_zenity():
+            cmd = "dialog --title 'MigasfreeSdk {} @ {}' --passwordbox '{}:' 0 0 --stdout".format(
                 self.user,
-                self.server
+                self.server,
+                _('Password')
             )
         try:
             password = subprocess.check_output(
