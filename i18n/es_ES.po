@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: migasfree-sdk 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 08:55+0100\n"
-"PO-Revision-Date: 2018-02-15 08:56+0100\n"
+"POT-Creation-Date: 2018-02-21 09:17+0100\n"
+"PO-Revision-Date: 2018-02-21 09:17+0100\n"
 "Last-Translator: Jose Antonio Chavarría <jachavar@gmail.com>\n"
 "Language-Team: Jose Antonio Chavarría <jachavar@gmail.com>\n"
 "Language: es_ES\n"
@@ -18,16 +18,31 @@ msgstr ""
 "X-Generator: Poedit 1.8.7.1\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: ../migasfree_sdk/api.py:155 ../migasfree_sdk/api.py:174
-#: ../migasfree_sdk/api.py:197
+#: ../migasfree_sdk/api.py:80 ../migasfree_sdk/api.py:157
+#: ../migasfree_sdk/api.py:176 ../migasfree_sdk/api.py:199
 msgid "Status code {}"
 msgstr "Código de estado {}"
 
-#: ../migasfree_sdk/api.py:170
+#: ../migasfree_sdk/api.py:82
+msgid "Can not continue without password"
+msgstr "No se puede continuar sin contraseña"
+
+#: ../migasfree_sdk/api.py:172
 msgid "Not found"
 msgstr "No encontrado"
 
-#: ../migasfree_sdk/api.py:172
+#: ../migasfree_sdk/api.py:174
 msgid "Multiple records found"
 msgstr "Se han encontrado múltiples registros"
 
+#: ../migasfree_sdk/api.py:249 ../migasfree_sdk/api.py:253
+msgid "Server"
+msgstr "Servidor"
+
+#: ../migasfree_sdk/api.py:267 ../migasfree_sdk/api.py:272
+msgid "User"
+msgstr "Usuario"
+
+#: ../migasfree_sdk/api.py:292
+msgid "Password"
+msgstr "Contraseña"

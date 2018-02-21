@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 08:55+0100\n"
+"POT-Creation-Date: 2018-02-21 09:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../migasfree_sdk/api.py:155 ../migasfree_sdk/api.py:174
-#: ../migasfree_sdk/api.py:197
+#: ../migasfree_sdk/api.py:80 ../migasfree_sdk/api.py:157
+#: ../migasfree_sdk/api.py:176 ../migasfree_sdk/api.py:199
 msgid "Status code {}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:170
-msgid "Not found"
+#: ../migasfree_sdk/api.py:82
+msgid "Can not continue without password"
 msgstr ""
 
 #: ../migasfree_sdk/api.py:172
+msgid "Not found"
+msgstr ""
+
+#: ../migasfree_sdk/api.py:174
 msgid "Multiple records found"
+msgstr ""
+
+#: ../migasfree_sdk/api.py:249 ../migasfree_sdk/api.py:253
+msgid "Server"
+msgstr ""
+
+#: ../migasfree_sdk/api.py:267 ../migasfree_sdk/api.py:272
+msgid "User"
+msgstr ""
+
+#: ../migasfree_sdk/api.py:292
+msgid "Password"
 msgstr ""
