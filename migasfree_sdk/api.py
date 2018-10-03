@@ -290,15 +290,16 @@ class ApiToken(object):
         return user.replace("\n", "")
 
     def get_password(self):
-        cmd = "zenity --title 'MigasfreeSdk {} @ {}' --password 2>/dev/null".format(
-            self.user,
-            self.server
+        title = "MigasfreeSDK {}".format(_('Password'))
+        text = "{} {}@{}".format(_('Password'), self.user, self.server)
+        cmd = "zenity --title '{}' --entry --hide-text --text '{}' 2>/dev/null".format(
+            title,
+            text
         )
         if self.is_tty() or not self.is_zenity():
-            cmd = "dialog --title 'MigasfreeSdk {} @ {}' --passwordbox '{}:' 0 0 --stdout".format(
-                self.user,
-                self.server,
-                _('Password')
+            cmd = "dialog --title '{}' --passwordbox '{}:' 0 0 --stdout".format(
+                title,
+                text
             )
         try:
             password = subprocess.check_output(
