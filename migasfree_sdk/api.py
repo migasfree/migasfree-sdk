@@ -241,9 +241,16 @@ class ApiToken(object):
         return os.getenv(_env)
 
     def token_file(self):
+        list_server = self.server.split(":")
+        server = "_{}".format(list_server[0])
+        if len(list_server) == 2:
+            port = "_{}".format(list_server[1])
+        else:
+            port = ""
+
         return os.path.join(
             self.get_user_path(),
-            '.migasfree-token.{}'.format(self.user)
+            '.migasfree-token_{}{}{}'.format(self.user, server, port)
         )
 
     def get_server(self):
