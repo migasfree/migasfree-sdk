@@ -76,6 +76,8 @@ class ApiToken(object):
                         if save_token:
                             with open(_token_file, 'w') as handle:
                                 handle.write(r.json()['token'])
+                            if os.name == 'posix':
+                                os.chmod(_token_file, 0o400)
                     else:
                         raise Exception(_('Status code {}').format(r.status_code))
                 else:
