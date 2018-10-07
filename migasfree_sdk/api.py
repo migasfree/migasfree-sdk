@@ -226,7 +226,7 @@ class ApiToken(object):
 
     @staticmethod
     def is_tty():
-        return os.environ.get('TERM', 'linux') == 'linux'
+        return os.environ.get('DISPLAY', '') == ''
 
     def id(self, endpoint, params):
         return self.get(endpoint, params)['id']
