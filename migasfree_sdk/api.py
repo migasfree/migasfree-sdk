@@ -66,7 +66,7 @@ class ApiToken(object):
                 if password:
                     data = {'username': self.user, 'password': password}
                     r = requests.post(
-                        '{}://{}/token-auth/'.format(self.protocol, self.server),
+                        '{0}://{1}/token-auth/'.format(self.protocol, self.server),
                         headers=self.headers,
                         data=json.dumps(data),
                         proxies=self.proxies
@@ -79,7 +79,7 @@ class ApiToken(object):
                             if os.name == 'posix':
                                 os.chmod(_token_file, 0o400)
                     else:
-                        raise Exception(_('Status code {}').format(r.status_code))
+                        raise Exception(_('Status code {0}').format(r.status_code))
                 else:
                     raise Exception(_('Can not continue without password'))
             else:
@@ -87,15 +87,15 @@ class ApiToken(object):
                     self.set_token(handle.read())
 
     def set_token(self, token):
-        self.headers['authorization'] = 'Token {}'.format(token)
+        self.headers['authorization'] = 'Token {0}'.format(token)
 
     def url(self, endpoint):
-        return '{}://{}/api/v{}/token/{}/'.format(
+        return '{0}://{1}/api/v{2}/token/{3}/'.format(
             self.protocol, self.server, self.version, endpoint
         )
 
     def url_id(self, endpoint, id_):
-        return '{}{}/'.format(self.url(endpoint), id_)
+        return '{0}{1}/'.format(self.url(endpoint), id_)
 
     def paginate(self, endpoint, params=None):
         """GET"""
@@ -156,7 +156,7 @@ class ApiToken(object):
             if r.status_code in self._ok_codes:
                 return r.json()
             else:
-                raise Exception(_('Status code {}').format(r.status_code))
+                raise Exception(_('Status code {0}').format(r.status_code))
         else:
             r = requests.get(
                 self.url(endpoint),
@@ -175,7 +175,7 @@ class ApiToken(object):
                 else:
                     raise Exception(_('Multiple records found'))
             else:
-                raise Exception(_('Status code {}').format(r.status_code))
+                raise Exception(_('Status code {0}').format(r.status_code))
 
     def filter(self, endpoint, params=None):
         """iterator"""
@@ -198,7 +198,7 @@ class ApiToken(object):
         if r.status_code == requests.codes.created:
             return r.json()['id']
         else:
-            raise Exception(_('Status code {}').format(r.status_code))
+            raise Exception(_('Status code {0}').format(r.status_code))
 
     @staticmethod
     def is_ok(status):
@@ -242,23 +242,23 @@ class ApiToken(object):
 
     def token_file(self):
         list_server = self.server.split(":")
-        server = "_{}".format(list_server[0])
+        server = "_{0}".format(list_server[0])
         if len(list_server) == 2:
-            port = "_{}".format(list_server[1])
+            port = "_{0}".format(list_server[1])
         else:
             port = ""
 
         return os.path.join(
             self.get_user_path(),
-            '.migasfree-token_{}{}{}'.format(self.user, server, port)
+            '.migasfree-token_{0}{1}{2}'.format(self.user, server, port)
         )
 
     def get_server(self):
-        cmd = "zenity --title 'MigasfreeSdk' --entry --text='{}:' --entry-text='localhost' 2>/dev/null".format(
+        cmd = "zenity --title 'MigasfreeSdk' --entry --text='{0}:' --entry-text='localhost' 2>/dev/null".format(
             _('Server')
         )
         if self.is_tty() or not self.is_zenity():
-            cmd = "dialog --title 'MigasfreeSdk' --inputbox '{}:' 0 0 'localhost' --stdout".format(
+            cmd = "dialog --title 'MigasfreeSdk' --inputbox '{0}:' 0 0 'localhost' --stdout".format(
                 _('Server')
             )
         try:
@@ -271,12 +271,12 @@ class ApiToken(object):
         return server.replace("\n", "")
 
     def get_user(self):
-        cmd = "zenity --title 'MigasfreeSdk @ {}' --entry --text='{}:' 2>/dev/null".format(
+        cmd = "zenity --title 'MigasfreeSdk @ {0}' --entry --text='{1}:' 2>/dev/null".format(
             self.server,
             _('User')
         )
         if self.is_tty() or not self.is_zenity():
-            cmd = "dialog --title 'MigasfreeSdk @ {}' --inputbox '{}:' 0 0 --stdout".format(
+            cmd = "dialog --title 'MigasfreeSdk @ {0}' --inputbox '{1}:' 0 0 --stdout".format(
                 self.server,
                 _('User')
             )
@@ -290,14 +290,14 @@ class ApiToken(object):
         return user.replace("\n", "")
 
     def get_password(self):
-        title = "MigasfreeSDK {}".format(_('Password'))
-        text = "{} {}@{}".format(_('Password'), self.user, self.server)
-        cmd = "zenity --title '{}' --entry --hide-text --text '{}' 2>/dev/null".format(
+        title = "MigasfreeSDK {0}".format(_('Password'))
+        text = "{0} {1}@{2}".format(_('Password'), self.user, self.server)
+        cmd = "zenity --title '{0}' --entry --hide-text --text '{1}' 2>/dev/null".format(
             title,
             text
         )
         if self.is_tty() or not self.is_zenity():
-            cmd = "dialog --title '{}' --passwordbox '{}:' 0 0 --stdout".format(
+            cmd = "dialog --title '{0}' --passwordbox '{1}:' 0 0 --stdout".format(
                 title,
                 text
             )
