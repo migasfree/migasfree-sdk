@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2018 Jose Antonio Chavarría <jachavar@gmail.com>
-# Copyright (c) 2018 Alberto Gacías <alberto@migasfree.org>
+# Copyright (c) 2018-2019 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2018-2019 Alberto Gacías <alberto@migasfree.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ import requests
 
 import gettext
 _ = gettext.gettext
+
+APP_NAME = 'Migasfree SDK'
 
 
 class ApiToken(object):
@@ -141,12 +143,15 @@ class ApiToken(object):
             proxies=self.proxies
         )
 
-    def get(self, endpoint, param):
+    def get(self, endpoint, param=None):
         """
         param can be 'id' or '{}'
         return only one object or exception
         """
-        if isinstance(param, (long, int)):  # GET ID
+        if not param:
+            param = {}
+
+        if isinstance(param, int):  # GET ID
             r = requests.get(
                 self.url_id(endpoint, param),
                 headers=self.headers,
@@ -254,11 +259,13 @@ class ApiToken(object):
         )
 
     def get_server(self):
-        cmd = "zenity --title 'MigasfreeSdk' --entry --text='{0}:' --entry-text='localhost' 2>/dev/null".format(
+        cmd = "zenity --title '{0}' --entry --text='{1}:' --entry-text='localhost' 2>/dev/null".format(
+            APP_NAME,
             _('Server')
         )
         if self.is_tty() or not self.is_zenity():
-            cmd = "dialog --title 'MigasfreeSdk' --inputbox '{0}:' 0 0 'localhost' --stdout".format(
+            cmd = "dialog --title '{0}' --inputbox '{1}:' 0 0 'localhost' --stdout".format(
+                APP_NAME,
                 _('Server')
             )
         try:
@@ -271,12 +278,14 @@ class ApiToken(object):
         return server.replace("\n", "")
 
     def get_user(self):
-        cmd = "zenity --title 'MigasfreeSdk @ {0}' --entry --text='{1}:' 2>/dev/null".format(
+        cmd = "zenity --title '{0} @ {1}' --entry --text='{2}:' 2>/dev/null".format(
+            APP_NAME,
             self.server,
             _('User')
         )
         if self.is_tty() or not self.is_zenity():
-            cmd = "dialog --title 'MigasfreeSdk @ {0}' --inputbox '{1}:' 0 0 --stdout".format(
+            cmd = "dialog --title '{0} @ {1}' --inputbox '{2}:' 0 0 --stdout".format(
+                APP_NAME,
                 self.server,
                 _('User')
             )
@@ -290,7 +299,7 @@ class ApiToken(object):
         return user.replace("\n", "")
 
     def get_password(self):
-        title = "MigasfreeSDK {0}".format(_('Password'))
+        title = "{0} {1}".format(APP_NAME, _('Password'))
         text = "{0} {1}@{2}".format(_('Password'), self.user, self.server)
         cmd = "zenity --title '{0}' --entry --hide-text --text '{1}' 2>/dev/null".format(
             title,
@@ -323,6 +332,7 @@ class ApiToken(object):
 
             return line
 
+        writer = None
         with open(output, 'wb') as csv_file:
             if fields:
                 writer = csv.DictWriter(csv_file, fieldnames=fields)
@@ -332,4 +342,5 @@ class ApiToken(object):
                     fields = element.keys()
                     writer = csv.DictWriter(csv_file, fieldnames=fields)
                     writer.writeheader()
-                writer.writerow(render_line(element, fields))
+                if writer:
+                    writer.writerow(render_line(element, fields))
