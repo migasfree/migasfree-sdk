@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2018 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2018-2019 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import glob
 import subprocess
 
@@ -54,7 +55,7 @@ class BuildData(build):
                     rc = subprocess.call(['msgfmt', '-o', mo, po])
                     if rc != 0:
                         raise Warning("msgfmt returned %d" % rc)
-                except Exception, e:
+                except Exception as e:
                     error("Building gettext files failed.  Try setup.py \
                         --without-gettext [build|install]")
                     error("Error: %s" % str(e))
