@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2018-2019 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,13 +17,20 @@
 
 import locale
 import gettext
-import __builtin__
-__builtin__._ = gettext.gettext
+import six
 
 LOCALE_PATH = '/usr/share/locale'
 DOMAIN = 'migasfree-sdk'
 
-gettext.install(DOMAIN, LOCALE_PATH, unicode=1)
+if six.PY2:
+    import __builtin__
+    __builtin__._ = gettext.gettext
+
+    gettext.install(DOMAIN, LOCALE_PATH, unicode=1)
+else:
+    import builtins
+    builtins._ = gettext.gettext
+    gettext.install(DOMAIN, LOCALE_PATH)
 
 gettext.bindtextdomain(DOMAIN, LOCALE_PATH)
 if hasattr(gettext, 'bind_textdomain_codeset'):
@@ -39,8 +46,8 @@ locale.textdomain(DOMAIN)
 # begin unicode hack
 import sys
 
-if sys.getdefaultencoding() != 'utf-8':
+if six.PY2 and sys.getdefaultencoding() != 'utf-8':
     reload(sys)
     sys.setdefaultencoding('utf-8')
-    # now default enconding is 'utf-8' ;)
+    # now default encoding is 'utf-8' ;)
 # end unicode hack
