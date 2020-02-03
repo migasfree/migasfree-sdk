@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2018-2019 Jose Antonio Chavarría <jachavar@gmail.com>
-# Copyright (c) 2018-2019 Alberto Gacías <alberto@migasfree.org>
+# Copyright (c) 2018-2020 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2018-2020 Alberto Gacías <alberto@migasfree.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import json
 import csv
 import platform
@@ -126,7 +127,11 @@ class ApiPublic(object):
             if r.status_code in self._ok_codes:
                 return r.json()
             else:
-                raise Exception(_('Status code {0}').format(r.status_code))
+                raise Exception(
+                    _('Status code: {0}, text: {1}').format(
+                        r.status_code, r.text
+                    )
+                )
         else:
             r = requests.get(
                 self.url(endpoint),
@@ -145,7 +150,11 @@ class ApiPublic(object):
                 else:
                     raise Exception(_('Multiple records found'))
             else:
-                raise Exception(_('Status code {0}').format(r.status_code))
+                raise Exception(
+                    _('Status code: {0}, text: {1}').format(
+                        r.status_code, r.text
+                    )
+                )
 
     def filter(self, endpoint, params=None):
         """iterator"""
@@ -168,7 +177,11 @@ class ApiPublic(object):
         if r.status_code == requests.codes.created:
             return r.json()['id']
         else:
-            raise Exception(_('Status code {0}').format(r.status_code))
+            raise Exception(
+                _('Status code: {0}, text: {1}').format(
+                    r.status_code, r.text
+                )
+            )
 
     @staticmethod
     def is_ok(status):
@@ -234,7 +247,8 @@ class ApiPublic(object):
             return line
 
         writer = None
-        with open(output, 'wb') as csv_file:
+        mode = 'wb' if sys.version_info.major < 3 else 'w'
+        with open(output, mode) as csv_file:
             if fields:
                 writer = csv.DictWriter(csv_file, fieldnames=fields)
                 writer.writeheader()
@@ -288,7 +302,11 @@ class ApiToken(ApiPublic):
                             if os.name == 'posix':
                                 os.chmod(_token_file, 0o400)
                     else:
-                        raise Exception(_('Status code {0}').format(r.status_code))
+                        raise Exception(
+                            _('Status code: {0}, text: {1}').format(
+                                r.status_code, r.text
+                            )
+                        )
                 else:
                     raise Exception(_('Can not continue without password'))
             else:
@@ -362,6 +380,8 @@ class ApiToken(ApiPublic):
             password = subprocess.check_output(
                 cmd, stderr=subprocess.STDOUT, shell=True
             )
+            if sys.version_info.major > 2:
+                password = password.decode()
         except subprocess.CalledProcessError:
             password = ''
 
