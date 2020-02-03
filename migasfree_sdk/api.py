@@ -30,20 +30,20 @@ _ = gettext.gettext
 APP_NAME = 'Migasfree SDK'
 
 
-class ApiToken(object):
+class ApiPublic(object):
     _ok_codes = [
         requests.codes.ok, requests.codes.created,
         requests.codes.moved, requests.codes.found,
         requests.codes.temporary_redirect, requests.codes.resume
     ]
     server = ''
-    user = ''
     headers = {'content-type': 'application/json'}
     protocol = 'http'
     proxies = {'http': '', 'https': ''}
     version = 1
 
-    def __init__(self, server='', user='', token='', save_token=False, version=1):
+
+    def __init__(self, server='', version=1):
         self.server = server
         if not self.server:
             try:
@@ -54,45 +54,10 @@ class ApiToken(object):
             except ImportError:
                 self.server = self.get_server()
 
-        self.user = user
         self.version = version
-        if token:
-            self.set_token(token)
-        else:
-            if not self.user:
-                self.user = self.get_user()
-
-            _token_file = self.token_file()
-            if not os.path.exists(_token_file):
-                password = self.get_password()
-                if password:
-                    data = {'username': self.user, 'password': password}
-                    r = requests.post(
-                        '{0}://{1}/token-auth/'.format(self.protocol, self.server),
-                        headers=self.headers,
-                        data=json.dumps(data),
-                        proxies=self.proxies
-                    )
-                    if r.status_code in self._ok_codes:
-                        self.set_token(r.json()['token'])
-                        if save_token:
-                            with open(_token_file, 'w') as handle:
-                                handle.write(r.json()['token'])
-                            if os.name == 'posix':
-                                os.chmod(_token_file, 0o400)
-                    else:
-                        raise Exception(_('Status code {0}').format(r.status_code))
-                else:
-                    raise Exception(_('Can not continue without password'))
-            else:
-                with open(_token_file) as handle:
-                    self.set_token(handle.read())
-
-    def set_token(self, token):
-        self.headers['authorization'] = 'Token {0}'.format(token)
 
     def url(self, endpoint):
-        return '{0}://{1}/api/v{2}/token/{3}/'.format(
+        return '{0}://{1}/api/v{2}/public/{3}/'.format(
             self.protocol, self.server, self.version, endpoint
         )
 
@@ -236,28 +201,6 @@ class ApiToken(object):
     def id(self, endpoint, params):
         return self.get(endpoint, params)['id']
 
-    @staticmethod
-    def get_user_path():
-        _platform = platform.system()
-        _env = 'HOME'
-        if _platform == 'Windows':
-            _env = 'USERPROFILE'
-
-        return os.getenv(_env)
-
-    def token_file(self):
-        list_server = self.server.split(":")
-        server = "_{0}".format(list_server[0])
-        if len(list_server) == 2:
-            port = "_{0}".format(list_server[1])
-        else:
-            port = ""
-
-        return os.path.join(
-            self.get_user_path(),
-            '.migasfree-token_{0}{1}{2}'.format(self.user, server, port)
-        )
-
     def get_server(self):
         cmd = "zenity --title '{0}' --entry --text='{1}:' --entry-text='localhost' 2>/dev/null".format(
             APP_NAME,
@@ -276,6 +219,111 @@ class ApiToken(object):
             server = 'localhost'
 
         return server.replace("\n", "")
+
+    def export_csv(self, endpoint, params=None, fields=None, output='output.csv'):
+        def render_line(element_, fields_=None):
+            if not fields_:
+                fields_ = []
+            line = {}
+            for keys in fields_:
+                x = element_
+                for key in keys.split('.'):
+                    x = x[key]
+                    line[keys] = x
+
+            return line
+
+        writer = None
+        with open(output, 'wb') as csv_file:
+            if fields:
+                writer = csv.DictWriter(csv_file, fieldnames=fields)
+                writer.writeheader()
+            for element in self.filter(endpoint, params):
+                if not fields:
+                    fields = element.keys()
+                    writer = csv.DictWriter(csv_file, fieldnames=fields)
+                    writer.writeheader()
+                if writer:
+                    writer.writerow(render_line(element, fields))
+
+
+class ApiToken(ApiPublic):
+    user = ''
+
+    def __init__(self, server='', user='', token='', save_token=False, version=1):
+        self.server = server
+        if not self.server:
+            try:
+                from migasfree_client.utils import get_config
+                from migasfree_client import settings as client_settings
+                config = get_config(client_settings.CONF_FILE, 'client')
+                self.server = config.get('server', 'localhost')
+            except ImportError:
+                self.server = self.get_server()
+
+        self.user = user
+        self.version = version
+        if token:
+            self.set_token(token)
+        else:
+            if not self.user:
+                self.user = self.get_user()
+
+            _token_file = self.token_file()
+            if not os.path.exists(_token_file):
+                password = self.get_password()
+                if password:
+                    data = {'username': self.user, 'password': password}
+                    r = requests.post(
+                        '{0}://{1}/token-auth/'.format(self.protocol, self.server),
+                        headers=self.headers,
+                        data=json.dumps(data),
+                        proxies=self.proxies
+                    )
+                    if r.status_code in self._ok_codes:
+                        self.set_token(r.json()['token'])
+                        if save_token:
+                            with open(_token_file, 'w') as handle:
+                                handle.write(r.json()['token'])
+                            if os.name == 'posix':
+                                os.chmod(_token_file, 0o400)
+                    else:
+                        raise Exception(_('Status code {0}').format(r.status_code))
+                else:
+                    raise Exception(_('Can not continue without password'))
+            else:
+                with open(_token_file) as handle:
+                    self.set_token(handle.read())
+
+    def set_token(self, token):
+        self.headers['authorization'] = 'Token {0}'.format(token)
+
+    def token_file(self):
+        list_server = self.server.split(":")
+        server = "_{0}".format(list_server[0])
+        if len(list_server) == 2:
+            port = "_{0}".format(list_server[1])
+        else:
+            port = ""
+
+        return os.path.join(
+            self.get_user_path(),
+            '.migasfree-token_{0}{1}{2}'.format(self.user, server, port)
+        )
+
+    def url(self, endpoint):
+        return '{0}://{1}/api/v{2}/token/{3}/'.format(
+            self.protocol, self.server, self.version, endpoint
+        )
+
+    @staticmethod
+    def get_user_path():
+        _platform = platform.system()
+        _env = 'HOME'
+        if _platform == 'Windows':
+            _env = 'USERPROFILE'
+
+        return os.getenv(_env)
 
     def get_user(self):
         cmd = "zenity --title '{0} @ {1}' --entry --text='{2}:' 2>/dev/null".format(
@@ -318,29 +366,3 @@ class ApiToken(object):
             password = ''
 
         return password.replace("\n", "")
-
-    def export_csv(self, endpoint, params=None, fields=None, output='output.csv'):
-        def render_line(element_, fields_=None):
-            if not fields_:
-                fields_ = []
-            line = {}
-            for keys in fields_:
-                x = element_
-                for key in keys.split('.'):
-                    x = x[key]
-                    line[keys] = x
-
-            return line
-
-        writer = None
-        with open(output, 'wb') as csv_file:
-            if fields:
-                writer = csv.DictWriter(csv_file, fieldnames=fields)
-                writer.writeheader()
-            for element in self.filter(endpoint, params):
-                if not fields:
-                    fields = element.keys()
-                    writer = csv.DictWriter(csv_file, fieldnames=fields)
-                    writer.writeheader()
-                if writer:
-                    writer.writerow(render_line(element, fields))
