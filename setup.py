@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2018-2019 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2018-2020 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import sys
 import glob
 import subprocess
 
-from setuptools import setup, find_packages
+from distutils.core import setup
 from distutils.command.build import build
 from distutils.command.install_data import install_data
 from distutils.log import info, error
@@ -82,7 +82,7 @@ class InstallData(install_data):
 setup(
     name='migasfree-sdk',
     version=VERSION,
-    packages=find_packages(),
+    packages=['migasfree_sdk'],
     data_files=[
         ('share/doc/migasfree-sdk', [
             'AUTHORS',
