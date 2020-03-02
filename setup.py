@@ -82,6 +82,7 @@ class InstallData(install_data):
 setup(
     name='migasfree-sdk',
     version=VERSION,
+    url='https://github.com/migasfree/migasfree-sdk/',
     packages=['migasfree_sdk'],
     data_files=[
         ('share/doc/migasfree-sdk', [
