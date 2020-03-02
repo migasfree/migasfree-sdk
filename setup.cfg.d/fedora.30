@@ -1,0 +1,9 @@
+[install]
+prefix=/usr
+
+[bdist_rpm]
+build-requires = python3
+release = 1
+doc_files = AUTHORS INSTALL LICENSE MANIFEST.in README.md
+fix-python = /usr/bin/python3
+requires = python3-requests

@@ -1,0 +1,66 @@
+#!/bin/bash
+
+function get_python
+{
+    local _FILE=$1
+
+    echo $(grep -q -c -m 1 python3 $_FILE && which python3 || which python2)
+}
+
+function create_package
+{
+    local _PYTHON_BUILD
+    local _STDEB
+
+    if [ -f stdeb.cfg ]
+    then
+        _PYTHON_BUILD=$(get_python stdeb.cfg)
+        _STDEB=$(grep -q 3 <<< "$_PYTHON_BUILD" && echo "stdeb3.command" || echo "stdeb.command")
+        $_PYTHON_BUILD setup.py --command-packages=${_STDEB} bdist_deb
+    else
+        _PYTHON_BUILD=$(get_python setup.cfg)
+        $_PYTHON_BUILD setup.py bdist_rpm
+    fi
+}
+
+function get_distro
+{
+    local _PYTHON=$(which python2 || which python3)
+    local _DISTRO=$($_PYTHON -c "from migasfree_client import utils; print(utils.get_distro_name())")
+    local _MAJOR_VERSION=$($_PYTHON -c "from migasfree_client import utils; print(utils.get_distro_major_version())")
+    local _FILE=${_DISTRO}
+
+    if [ -n "$_MAJOR_VERSION" ]
+    then
+        _FILE=${_FILE}.${_MAJOR_VERSION}
+    fi
+
+    if [ -f "setup.cfg.d/$_FILE" ]
+    then
+        ln -sf "setup.cfg.d/$_FILE" setup.cfg
+        echo "$_FILE"
+        return
+    fi
+
+    if [ -f "stdeb.cfg.d/$_FILE" ]
+    then
+        ln -sf "stdeb.cfg.d/$_FILE" stdeb.cfg
+        echo "$_FILE"
+        return
+    fi
+
+    echo ""
+}
+
+##############
+# main process
+##############
+
+cd ..
+if [ -z "$(get_distro)" ]
+then
+    echo "Computer distro is not available. Aborting package creation."
+    exit 1
+fi
+
+create_package
