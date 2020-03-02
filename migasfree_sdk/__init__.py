@@ -17,12 +17,12 @@
 
 import locale
 import gettext
-import six
+import sys
 
 LOCALE_PATH = '/usr/share/locale'
 DOMAIN = 'migasfree-sdk'
 
-if six.PY2:
+if sys.version_info[0] <= 2:
     import __builtin__
     __builtin__._ = gettext.gettext
 
@@ -46,7 +46,7 @@ locale.textdomain(DOMAIN)
 # begin unicode hack
 import sys
 
-if six.PY2 and sys.getdefaultencoding() != 'utf-8':
+if sys.version_info[0] <= 2 and sys.getdefaultencoding() != 'utf-8':
     reload(sys)
     sys.setdefaultencoding('utf-8')
     # now default encoding is 'utf-8' ;)
