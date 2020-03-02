@@ -28,6 +28,13 @@ import requests
 import gettext
 _ = gettext.gettext
 
+
+if sys.version_info[0] <= 2:
+    import commands
+else:
+    import subprocess as commands
+
+
 APP_NAME = 'Migasfree SDK'
 
 
@@ -199,7 +206,7 @@ class ApiPublic(object):
     def is_zenity():
         cmd = 'which zenity'
         try:
-            ret = subprocess.check_output(
+            ret = commands.getoutput(
                 cmd, stderr=subprocess.STDOUT, shell=True
             )
         except subprocess.CalledProcessError:
@@ -225,7 +232,7 @@ class ApiPublic(object):
                 _('Server')
             )
         try:
-            server = subprocess.check_output(
+            server = commands.getoutput(
                 cmd, stderr=subprocess.STDOUT, shell=True
             )
         except subprocess.CalledProcessError:
@@ -356,7 +363,7 @@ class ApiToken(ApiPublic):
                 _('User')
             )
         try:
-            user = subprocess.check_output(
+            user = commands.getoutput(
                 cmd, stderr=subprocess.STDOUT, shell=True
             )
         except subprocess.CalledProcessError:
@@ -377,7 +384,7 @@ class ApiToken(ApiPublic):
                 text
             )
         try:
-            password = subprocess.check_output(
+            password = commands.getoutput(
                 cmd, stderr=subprocess.STDOUT, shell=True
             )
             if sys.version_info.major > 2:
