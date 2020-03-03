@@ -19,7 +19,7 @@ See AUTHORS file
 Requirements
 ============
 
-    * Python >= 2.7
+    * Python >= 2.6
     * python-requests
 
 
