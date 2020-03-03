@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 # Copyright (c) 2018-2020 Jose Antonio Chavarría <jachavar@gmail.com>
@@ -49,7 +48,6 @@ class ApiPublic(object):
     protocol = 'http'
     proxies = {'http': '', 'https': ''}
     version = 1
-
 
     def __init__(self, server='', version=1):
         self.server = server
@@ -165,6 +163,9 @@ class ApiPublic(object):
 
     def filter(self, endpoint, params=None):
         """iterator"""
+        if not params:
+            params = {}
+
         url = self.url(endpoint)
         while url:
             r = requests.get(
@@ -177,7 +178,7 @@ class ApiPublic(object):
                 data = r.json()
                 for element in data['results']:
                     yield element
-                url = data['next']
+                url = data['next'] if 'page' not in params else ''
 
     def add(self, endpoint, data):
         r = self.post(endpoint, data=data)
@@ -206,9 +207,7 @@ class ApiPublic(object):
     def is_zenity():
         cmd = 'which zenity'
         try:
-            ret = commands.getoutput(
-                cmd, stderr=subprocess.STDOUT, shell=True
-            )
+            ret = commands.getoutput(cmd)
         except subprocess.CalledProcessError:
             return False
 
@@ -232,9 +231,7 @@ class ApiPublic(object):
                 _('Server')
             )
         try:
-            server = commands.getoutput(
-                cmd, stderr=subprocess.STDOUT, shell=True
-            )
+            server = commands.getoutput(cmd)
         except subprocess.CalledProcessError:
             server = 'localhost'
 
@@ -254,7 +251,7 @@ class ApiPublic(object):
             return line
 
         writer = None
-        mode = 'wb' if sys.version_info.major < 3 else 'w'
+        mode = 'wb' if sys.version_info[0] < 3 else 'w'
         with open(output, mode) as csv_file:
             if fields:
                 writer = csv.DictWriter(csv_file, fieldnames=fields)
@@ -272,18 +269,9 @@ class ApiToken(ApiPublic):
     user = ''
 
     def __init__(self, server='', user='', token='', save_token=False, version=1):
-        self.server = server
-        if not self.server:
-            try:
-                from migasfree_client.utils import get_config
-                from migasfree_client import settings as client_settings
-                config = get_config(client_settings.CONF_FILE, 'client')
-                self.server = config.get('server', 'localhost')
-            except ImportError:
-                self.server = self.get_server()
+        super(ApiToken, self).__init__(server, version)
 
         self.user = user
-        self.version = version
         if token:
             self.set_token(token)
         else:
@@ -363,9 +351,7 @@ class ApiToken(ApiPublic):
                 _('User')
             )
         try:
-            user = commands.getoutput(
-                cmd, stderr=subprocess.STDOUT, shell=True
-            )
+            user = commands.getoutput(cmd)
         except subprocess.CalledProcessError:
             user = ''
 
@@ -384,11 +370,7 @@ class ApiToken(ApiPublic):
                 text
             )
         try:
-            password = commands.getoutput(
-                cmd, stderr=subprocess.STDOUT, shell=True
-            )
-            if sys.version_info.major > 2:
-                password = password.decode()
+            password = commands.getoutput(cmd)
         except subprocess.CalledProcessError:
             password = ''
 
