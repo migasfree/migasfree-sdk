@@ -1,15 +1,12 @@
 To install it, make sure you have these programs installed:
 
-    * Python >= 2.7 | Python >= 3.3
+    * Python >= 2.6 | Python >= 3.3
     * python-requests | python3-requests
     * python-setuptools | python3-setuptools
     * python-stdeb | python3-stdeb (to create a DEB package)
 
-Then, create package through this command:
+Then run these commands from the command prompt:
 
-    $ python setup.py --command-packages=stdeb.command bdist_deb
-    $ python3 setup.py --command-packages=stdeb.command bdist_deb
-
-And finally, install package:
-
-    $ sudo dpkg -i deb_dist/*.deb
+    $ cd bin
+    $ ./create-package
+    # <install package (deb or rpm)>
