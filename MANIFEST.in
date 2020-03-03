@@ -3,4 +3,3 @@
 include AUTHORS INSTALL LICENSE README.md VERSION MANIFEST.in
 recursive-include migasfree_sdk *.py
 include i18n/*
-
