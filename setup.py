@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 # Copyright (c) 2018-2020 Jose Antonio Chavarría <jachavar@gmail.com>
