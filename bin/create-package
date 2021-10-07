@@ -15,8 +15,7 @@ function create_package
     if [ -f stdeb.cfg ]
     then
         _PYTHON_BUILD=$(get_python stdeb.cfg)
-        _STDEB=$(grep -q 3 <<< "$_PYTHON_BUILD" && echo "stdeb3.command" || echo "stdeb.command")
-        $_PYTHON_BUILD setup.py --command-packages=${_STDEB} bdist_deb
+        $_PYTHON_BUILD setup.py --command-packages=stdeb.command bdist_deb
     else
         _PYTHON_BUILD=$(get_python setup.cfg)
         $_PYTHON_BUILD setup.py bdist_rpm
@@ -26,8 +25,8 @@ function create_package
 function get_distro
 {
     local _PYTHON=$(which python2 || which python3)
-    local _DISTRO=$($_PYTHON -c "from migasfree_client import utils; print(utils.get_distro_name())")
-    local _MAJOR_VERSION=$($_PYTHON -c "from migasfree_client import utils; print(utils.get_distro_major_version())")
+    local _DISTRO=$($_PYTHON -c "import distro; print(distro.name().lower())")
+    local _MAJOR_VERSION=$($_PYTHON -c "import distro; print(distro.version().split('.')[0])")
     local _FILE=${_DISTRO}
 
     if [ -n "$_MAJOR_VERSION" ]
