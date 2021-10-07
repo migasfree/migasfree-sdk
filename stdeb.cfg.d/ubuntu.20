@@ -7,6 +7,6 @@ Source = migasfree-sdk
 Package3 = migasfree-sdk
 Maintainer = Jose Antonio Chavarria <jachavar@gmail.com>
 Debian-Version = 1
-Build-Depends = python3 (>=3.2), python3-stdeb3
+Build-Depends = python3 (>=3.2), python3-stdeb, python3-distro
 Depends3 = python3-requests
 Suggests3 = migasfree-client
