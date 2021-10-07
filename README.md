@@ -27,4 +27,3 @@ Installation
 ============
 
 See INSTALL file
-
