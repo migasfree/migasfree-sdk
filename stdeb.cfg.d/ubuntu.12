@@ -7,7 +7,6 @@ Source = migasfree-sdk
 Package = migasfree-sdk
 Maintainer = Jose Antonio Chavarria <jachavar@gmail.com>
 Debian-Version = 1
-Build-Depends = python (>=2.7), python-stdeb
+Build-Depends = python (>=2.7), python-stdeb, python-distro
 Depends = python-requests
 Suggests = migasfree-client
-
