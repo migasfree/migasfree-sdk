@@ -25,7 +25,7 @@ function create_package
 function get_distro
 {
     local _PYTHON=$(which python2 || which python3)
-    local _DISTRO=$($_PYTHON -c "import distro; print(distro.name().lower())")
+    local _DISTRO=$($_PYTHON -c "import distro; print(distro.name().lower().strip().split()[0])")
     local _MAJOR_VERSION=$($_PYTHON -c "import distro; print(distro.version().split('.')[0])")
     local _FILE=${_DISTRO}
 
