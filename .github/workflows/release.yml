@@ -75,7 +75,24 @@ jobs:
           dnf install -y python3-devel python3-setuptools python3-pip rpm-build gettext git
       - name: Build RPM
         run: |
-          python3 setup.py sdist bdist_rpm
+          # Create RPM build structure
+          mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,RPMS,SRPMS}
+          
+          # Generate source tarball and copy to SOURCES
+          python3 setup.py sdist
+          cp dist/*.tar.gz ~/rpmbuild/SOURCES/
+          
+          # Generate SPEC file
+          python3 setup.py bdist_rpm --spec-only
+          # The spec file is usually in dist/ or build/bdist.../rpm/SPECS/
+          # but we can find it and copy it to SPECS
+          find build -name "*.spec" -exec cp {} ~/rpmbuild/SPECS/ \;
+          
+          # Build RPM
+          rpmbuild -ba ~/rpmbuild/SPECS/*.spec
+          
+          # Move result to dist/ for uploading
+          cp ~/rpmbuild/RPMS/noarch/*.rpm dist/
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
