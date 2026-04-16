@@ -17,13 +17,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import csv
+import gettext
 import json
 import os
 import platform
 import subprocess
 import sys
 
-import gettext
 import requests
 
 _ = gettext.gettext
@@ -216,7 +216,7 @@ class ApiPublic(object):
         try:
             r = self.session.get(url, params=params)
         except requests.exceptions.RequestException as e:
-            raise Exception(_('Network error connecting to {0}: {1}').format(url, str(e)))
+            raise RuntimeError(_('Network error connecting to {0}: {1}').format(url, str(e)))
 
         if r.status_code in self._ok_codes:
             data = r.json()
@@ -226,10 +226,10 @@ class ApiPublic(object):
             if data['count'] == 1:
                 return data['results'][0]
             elif data['count'] == 0:
-                raise Exception(_('Not found'))
-            raise Exception(_('Multiple records found'))
+                raise RuntimeError(_('Not found'))
+            raise RuntimeError(_('Multiple records found'))
 
-        raise Exception(_('Status code: {0}, text: {1}').format(r.status_code, r.text))
+        raise RuntimeError(_('Status code: {0}, text: {1}').format(r.status_code, r.text))
 
     def filter(self, endpoint, params=None):
         """Generator for filtered and paginated API requests.
@@ -272,7 +272,7 @@ class ApiPublic(object):
         r = self.session.post(self.url(endpoint), data=json.dumps(data))
         if r.status_code == requests.codes.created:
             return r.json().get('id')
-        raise Exception(_('Status code: {0}, text: {1}').format(r.status_code, r.text))
+        raise RuntimeError(_('Status code: {0}, text: {1}').format(r.status_code, r.text))
 
     def post(self, endpoint, data):
         """Performs a generic POST request.
@@ -386,7 +386,6 @@ class ApiToken(ApiPublic):
 
     def _manage_token(self, save_token):
         """Handles token loading, acquisition, and persistence."""
-        path = self.token_file()
         token = self.get_token_from_file()
 
         if token:
@@ -394,7 +393,7 @@ class ApiToken(ApiPublic):
         else:
             password = self._ui_prompt(APP_NAME, _('Password'), hide_text=True)
             if not password:
-                raise Exception(_('Can not continue without password'))
+                raise RuntimeError(_('Can not continue without password'))
 
             url = '{0}://{1}/token-auth/'.format(self.protocol, self.server)
             payload = json.dumps({'username': self.user, 'password': password})
@@ -406,9 +405,9 @@ class ApiToken(ApiPublic):
                     if save_token:
                         self.save_token_to_file(token)
                 else:
-                    raise Exception(_('Auth failed: {0}').format(r.text))
+                    raise RuntimeError(_('Auth failed: {0}').format(r.text))
             except requests.exceptions.RequestException as e:
-                raise Exception(_('Error requesting token: {0}').format(str(e)))
+                raise RuntimeError(_('Error requesting token: {0}').format(str(e)))
 
     def set_token(self, token):
         """Sets the authorization header in the session."""

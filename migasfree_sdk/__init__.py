@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018-2019 Jose Antonio Chavarría <jachavar@gmail.com>
+# Copyright (c) 2018-2026 Jose Antonio Chavarría <jachavar@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,35 +19,35 @@ import locale
 import gettext
 import sys
 
-LOCALE_PATH = '/usr/share/locale'
-DOMAIN = 'migasfree-sdk'
+LOCALE_PATH = "/usr/share/locale"
+DOMAIN = "migasfree-sdk"
 
 if sys.version_info[0] <= 2:
     import __builtin__
+
     __builtin__._ = gettext.gettext
 
     gettext.install(DOMAIN, LOCALE_PATH, unicode=1)
 else:
     import builtins
+
     builtins._ = gettext.gettext
     gettext.install(DOMAIN, LOCALE_PATH)
 
 gettext.bindtextdomain(DOMAIN, LOCALE_PATH)
-if hasattr(gettext, 'bind_textdomain_codeset'):
-    gettext.bind_textdomain_codeset(DOMAIN, 'UTF-8')
+if hasattr(gettext, "bind_textdomain_codeset"):
+    gettext.bind_textdomain_codeset(DOMAIN, "UTF-8")
 gettext.textdomain(DOMAIN)
 
 locale.bindtextdomain(DOMAIN, LOCALE_PATH)
-if hasattr(locale, 'bind_textdomain_codeset'):
-    locale.bind_textdomain_codeset(DOMAIN, 'UTF-8')
+if hasattr(locale, "bind_textdomain_codeset"):
+    locale.bind_textdomain_codeset(DOMAIN, "UTF-8")
 locale.textdomain(DOMAIN)
 
 # http://www.ianbicking.org/illusive-setdefaultencoding.html
 # begin unicode hack
-import sys
-
-if sys.version_info[0] <= 2 and sys.getdefaultencoding() != 'utf-8':
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
+if sys.version_info[0] <= 2 and sys.getdefaultencoding() != "utf-8":
+    reload(sys)  # noqa: F821
+    sys.setdefaultencoding("utf-8")  # noqa: E501
     # now default encoding is 'utf-8' ;)
 # end unicode hack
