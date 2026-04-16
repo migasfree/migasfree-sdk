@@ -75,7 +75,7 @@ jobs:
           dnf install -y python3-devel python3-setuptools python3-pip rpm-build gettext git
       - name: Build RPM
         run: |
-          python3 setup.py bdist_rpm
+          python3 setup.py sdist bdist_rpm
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
