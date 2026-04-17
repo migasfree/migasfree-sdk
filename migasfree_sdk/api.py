@@ -91,8 +91,11 @@ class ApiPublic(object):
         # server identification is handled by _trace in requests
 
         # mTLS discovery and setup
+        self._temp_certs = []
         if cert is None:
             cert = self._discover_mtls_cert()
+        elif isinstance(cert, str) and cert.endswith(".p12"):
+            cert = self._handle_pkcs12(cert)
 
         if cert:
             self.session.cert = cert
@@ -134,6 +137,69 @@ class ApiPublic(object):
                         )
                     )
         return None
+
+    def _handle_pkcs12(self, p12_path):
+        """Converts PKCS12 to PEM on the fly using cryptography library."""
+        try:
+            from cryptography.hazmat.primitives import serialization
+            from cryptography.hazmat.primitives.serialization import pkcs12
+        except ImportError:
+            raise RuntimeError(
+                _(
+                    "To use .p12 certificates, you must install "
+                    "the 'cryptography' library: pip install cryptography"
+                )
+            )
+
+        if not os.path.exists(p12_path):
+            raise IOError(_("Certificate file not found: {0}").format(p12_path))
+
+        password = self._ui_prompt(
+            APP_NAME,
+            _("Certificate Password for {0}").format(os.path.basename(p12_path)),
+            hide_text=True,
+        )
+
+        with open(p12_path, "rb") as f:
+            p12_data = f.read()
+
+        try:
+            private_key, certificate, additional_certs = (
+                pkcs12.load_key_and_certificates(
+                    p12_data, password.encode() if password else None
+                )
+            )
+        except Exception as e:
+            raise RuntimeError(
+                _("Error loading PKCS12 certificate: {0}").format(str(e))
+            )
+
+        # Create a temporary PEM file
+        import tempfile
+
+        fd, pem_path = tempfile.mkstemp(suffix=".pem")
+        self._temp_certs.append(pem_path)
+        with os.fdopen(fd, "wb") as f:
+            f.write(certificate.public_bytes(serialization.Encoding.PEM))
+            f.write(
+                private_key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            )
+
+        return pem_path
+
+    def __del__(self):
+        """Cleanup temporary files."""
+        if hasattr(self, "_temp_certs"):
+            for path in self._temp_certs:
+                if os.path.exists(path):
+                    try:
+                        os.remove(path)
+                    except (OSError, IOError):
+                        pass
 
     def _discover_mtls_ca(self):
         if not self.server:
