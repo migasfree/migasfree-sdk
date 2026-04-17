@@ -4,7 +4,12 @@ function get_python
 {
     local _FILE=$1
 
-    echo $(grep -q -c -m 1 python3 $_FILE && which python3 || which python2)
+    if grep -q -m 1 python3 "$_FILE"
+    then
+        which python3
+    else
+        which python2
+    fi
 }
 
 function create_package
@@ -18,15 +23,27 @@ function create_package
         $_PYTHON_BUILD setup.py --command-packages=stdeb.command bdist_deb
     else
         _PYTHON_BUILD=$(get_python setup.cfg)
+        # Fix setuptools naming quirk for RPM: repack sdist to use hyphens
+        $_PYTHON_BUILD setup.py sdist
+        local _VERSION
+        _VERSION=$(cat VERSION)
+        mkdir -p dist/repack
+        tar -xzf "dist/migasfree_sdk-${_VERSION}.tar.gz" -C dist/repack
+        mv "dist/repack/migasfree_sdk-${_VERSION}" "dist/repack/migasfree-sdk-${_VERSION}"
+        tar -czf "dist/migasfree-sdk-${_VERSION}.tar.gz" -C dist/repack "migasfree-sdk-${_VERSION}"
+        rm -rf dist/repack
         $_PYTHON_BUILD setup.py bdist_rpm
     fi
 }
 
 function get_distro
 {
-    local _PYTHON=$(which python2 || which python3)
-    local _DISTRO=$($_PYTHON -c "import distro; print(distro.name().lower().strip().split()[0])")
-    local _MAJOR_VERSION=$($_PYTHON -c "import distro; print(distro.version().split('.')[0])")
+    local _PYTHON
+    _PYTHON=$(which python2 || which python3)
+    local _DISTRO
+    _DISTRO=$($_PYTHON -c "import distro; print(distro.name().lower().strip().split()[0])")
+    local _MAJOR_VERSION
+    _MAJOR_VERSION=$($_PYTHON -c "import distro; print(distro.version().split('.')[0])")
     local _FILE=${_DISTRO}
 
     if [ -n "$_MAJOR_VERSION" ]
@@ -55,7 +72,7 @@ function get_distro
 # main process
 ##############
 
-cd ..
+cd "$(dirname "$0")/.." || exit 1
 if [ -z "$(get_distro)" ]
 then
     echo "Computer distro is not available. Aborting package creation."

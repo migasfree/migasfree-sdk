@@ -4,6 +4,7 @@
 
 [migasfree-sdk]
 Source = migasfree-sdk
+Package = migasfree-sdk
 Package3 = migasfree-sdk
 Maintainer = Jose Antonio Chavarria <jachavar@gmail.com>
 Debian-Version = 1

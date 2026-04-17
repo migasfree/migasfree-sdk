@@ -45,14 +45,14 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gettext python3-all build-essential debhelper dh-python
+          sudo apt-get install -y gettext python3-all build-essential debhelper dh-python python3-distro
       - name: Install stdeb
         run: |
           python3 -m pip install --upgrade pip
           pip install stdeb
       - name: Build DB
         run: |
-          python3 setup.py --command-packages=stdeb.command bdist_deb
+          ./bin/create-package
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
@@ -68,33 +68,10 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install Build Dependencies
         run: |
-          dnf install -y python3-devel python3-setuptools python3-pip rpm-build gettext git
+          dnf install -y python3-devel python3-setuptools python3-pip rpm-build gettext git python3-distro
       - name: Build RPM
         run: |
-          # Create RPM build structure
-          mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,RPMS,SRPMS}
-          
-          # Generate source tarball and copy to SOURCES
-          # Setuptools uses underscores but RPM spec expects hyphens. We repack to match.
-          python3 setup.py sdist
-          VERSION=$(cat VERSION)
-          mkdir -p dist/repack
-          tar -xzf dist/migasfree_sdk-${VERSION}.tar.gz -C dist/repack
-          mv dist/repack/migasfree_sdk-${VERSION} dist/repack/migasfree-sdk-${VERSION}
-          tar -czf dist/migasfree-sdk-${VERSION}.tar.gz -C dist/repack migasfree-sdk-${VERSION}
-          cp dist/migasfree-sdk-${VERSION}.tar.gz ~/rpmbuild/SOURCES/
-          
-          # Generate SPEC file
-          python3 setup.py bdist_rpm --spec-only
-          # The spec file is usually in dist/ or build/bdist.../rpm/SPECS/
-          # but we can find it and copy it to SPECS
-          find . -name "*.spec" -exec cp {} ~/rpmbuild/SPECS/ \;
-          
-          # Build RPM
-          rpmbuild -ba ~/rpmbuild/SPECS/*.spec
-          
-          # Move result to dist/ for uploading
-          cp ~/rpmbuild/RPMS/noarch/*.rpm dist/
+          ./bin/create-package
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
