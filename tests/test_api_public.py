@@ -26,12 +26,12 @@ class TestApiPublic(unittest.TestCase):
 
             # Public URL
             url = self.api.url("projects")
-            self.assertEqual(url, "https://migasfree.example.com/api/v1/public/projects/")
+            self.assertEqual(url, "http://migasfree.example.com/api/v1/public/projects/")
 
             # Public URL with ID
             url = self.api.url("projects", id_=123)
             self.assertEqual(
-                url, "https://migasfree.example.com/api/v1/public/projects/123/"
+                url, "http://migasfree.example.com/api/v1/public/projects/123/"
             )
 
     @patch("requests.Session.get")
@@ -72,13 +72,38 @@ class TestApiPublic(unittest.TestCase):
 
         api_legacy = ApiPublic(server=self.server)
         url = api_legacy.url("computers")
-        self.assertEqual(url, "https://migasfree.example.com/api/v1/computers/")
+        self.assertEqual(url, "http://migasfree.example.com/api/v1/computers/")
 
         # Scenario 2: Server is modern (v5), probe returns 200
         mock_response.status_code = 200
         api_modern = ApiPublic(server=self.server)
         url = api_modern.url("computers")
         self.assertEqual(url, "https://migasfree.example.com/api/v1/public/computers/")
+
+    @patch("requests.Session.get")
+    def test_protocol_discovery(self, mock_get):
+        """Test that discovery correctly handles protocol switching."""
+        # Scenario: HTTPS fails (timeout), but HTTP succeeds (v5)
+        def side_effect(url, timeout=None):
+            if url.startswith("https://"):
+                raise Exception("Connection Timeout")
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            return mock_response
+
+        mock_get.side_effect = side_effect
+
+        api = ApiPublic(server=self.server)
+        # Initial protocol is http (default)
+        self.assertEqual(api.protocol, "http")
+        
+        # Trigger discovery
+        self.assertTrue(api.is_v5)
+        # It should have kept http after failing https
+        self.assertEqual(api.protocol, "http")
+        
+        url = api.url("computers")
+        self.assertEqual(url, "http://migasfree.example.com/api/v1/public/computers/")
 
     @patch("requests.Session.get")
     def test_json_error_parsing(self, mock_get):

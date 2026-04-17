@@ -79,7 +79,7 @@ class ApiPublic(object):
         if "://" in server:
             self.protocol, self.server = server.split("://")
         else:
-            self.protocol = "https"
+            self.protocol = "http"
             self.server = server
 
         if not self.server:
@@ -116,16 +116,36 @@ class ApiPublic(object):
             return self._v5
 
         # Try to detect by probing a known v5 endpoint
-        probe_url = "{0}/api/v{1}/public/server/info/".format(
+        # First attempt: HTTPS
+        probe_url = "https://{0}/api/v{1}/public/server/info/".format(
             self.server, self.version
         )
         try:
-            # Short timeout for discovery
             r = self.session.get(probe_url, timeout=2)
-            self._v5 = r.status_code == 200
+            if r.status_code == 200:
+                self.protocol = "https"
+                self._v5 = True
+                return True
         except Exception:
-            self._v5 = False
-        return self._v5
+            pass
+
+        # Second attempt: HTTP (Legacy or non-SSL)
+        probe_url = "http://{0}/api/v{1}/public/server/info/".format(
+            self.server, self.version
+        )
+        try:
+            r = self.session.get(probe_url, timeout=2)
+            if r.status_code == 200:
+                self.protocol = "http"
+                self._v5 = True
+                return True
+        except Exception:
+            pass
+
+        # If we reach here, it's either v4 or the server is down
+        # We assume legacy v4 over current protocol
+        self._v5 = False
+        return False
 
     def _get_mtls_base_path(self):
         if platform.system() == "Windows":

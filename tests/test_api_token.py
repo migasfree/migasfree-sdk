@@ -77,7 +77,7 @@ class TestApiToken(unittest.TestCase):
                 api = ApiToken(server=self.server, user=self.user, token="test")
                 url = api.url("computers")
                 self.assertEqual(
-                    url, "https://migasfree.example.com/api/v1/token/computers/"
+                    url, "http://migasfree.example.com/api/v1/token/computers/"
                 )
 
 
