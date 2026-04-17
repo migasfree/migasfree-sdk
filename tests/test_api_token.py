@@ -37,7 +37,7 @@ class TestApiToken(unittest.TestCase):
         with patch("migasfree_sdk.api.open", create=True) as mock_open:
             mock_open.return_value.__enter__.return_value = MagicMock()
 
-            api = ApiToken(server=self.server, save_token=True)
+            api = ApiToken(server=self.server, user=self.user, save_token=True)
 
             self.assertEqual(api.user, "admin")
             self.assertEqual(
@@ -64,7 +64,7 @@ class TestApiToken(unittest.TestCase):
     def test_legacy_get_token(self):
         """Test legacy get_token method alias."""
         with patch("migasfree_sdk.api.ApiToken._manage_token") as mock_manage:
-            api = ApiToken(server=self.server, token="test")
+            api = ApiToken(server=self.server, user=self.user, token="test")
             api.get_token(save_token=True)
             mock_manage.assert_called_once_with(True, False)
 
@@ -72,7 +72,7 @@ class TestApiToken(unittest.TestCase):
         """Test URL building for authenticated requests."""
         # Authenticated URL must use /token/ instead of /public/
         with patch("migasfree_sdk.api.ApiToken._manage_token"):
-            api = ApiToken(server=self.server, token="test")
+            api = ApiToken(server=self.server, user=self.user, token="test")
             url = api.url("computers")
             self.assertEqual(
                 url, "http://migasfree.example.com/api/v1/token/computers/"
