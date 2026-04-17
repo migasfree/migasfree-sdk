@@ -325,7 +325,7 @@ class ApiPublic(object):
         Returns:
             dict/requests.Response: The record data or the response object on error.
         """
-        return self.get(endpoint, id_=id_)
+        return self.get(endpoint, param=id_)
 
     def filter(self, endpoint, params=None):
         """Generator for filtered and paginated API requests.
