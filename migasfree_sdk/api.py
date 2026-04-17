@@ -88,8 +88,7 @@ class ApiPublic(object):
             except ImportError:
                 self.server = self.get_server()
 
-        if self.debug:
-            print("Server: {0}".format(self.server))
+        # server identification is handled by _trace in requests
 
         # mTLS discovery and setup
         if cert is None:
@@ -127,8 +126,13 @@ class ApiPublic(object):
                 # Check readability
                 with open(cert, "r"), open(key, "r"):
                     return (cert, key)
-            except (OSError, IOError):
-                pass
+            except (OSError, IOError) as e:
+                if self.debug:
+                    sys.stdout.write(
+                        "Warning: Found mTLS certs in {0} but could not read them: {1}\n".format(
+                            base, str(e)
+                        )
+                    )
         return None
 
     def _discover_mtls_ca(self):
@@ -140,8 +144,13 @@ class ApiPublic(object):
             try:
                 with open(ca, "r"):
                     return ca
-            except (OSError, IOError):
-                pass
+            except (OSError, IOError) as e:
+                if self.debug:
+                    sys.stdout.write(
+                        "Warning: Found CA cert in {0} but could not read it: {1}\n".format(
+                            ca, str(e)
+                        )
+                    )
         return None
 
     def _ui_prompt(self, title, text, entry_text="", hide_text=False):
@@ -205,6 +214,9 @@ class ApiPublic(object):
         """Prints debug information for a request."""
         if self.debug:
             sys.stdout.write("Server: {0}\n".format(self.server))
+            sys.stdout.write(
+                "mTLS: {0}\n".format("Active" if self.session.cert else "Inactive")
+            )
             sys.stdout.write("{0} {1}\n".format(method, url))
             headers = self.session.headers.copy()
             if "authorization" in headers:
@@ -257,7 +269,13 @@ class ApiPublic(object):
 
         if r.status_code in self._ok_codes:
             data = r.json()
-            if isinstance(param, int) or isinstance(data, list) or "count" not in data:
+            # If it's a list, an explicit ID was provided, or it's not paginated, return as is
+            if (
+                isinstance(param, int)
+                or isinstance(data, list)
+                or "count" not in data
+                or param is None
+            ):
                 return data
 
             if data["count"] == 1:
@@ -429,10 +447,10 @@ class ApiToken(ApiPublic):
         Args:
             user (str): Username.
             token (str): Direct API token.
-            save_token (bool): If True, persist token locally.
+            save_token (bool): If True, persists the token in a hidden file in the user's home directory for future reuse. Defaults to False.
             version (int): API version.
             debug (bool): Enable request tracing.
-            ignore_cache (bool): If True, bypass local token storage.
+            ignore_cache (bool): If True, bypasses local token storage and forces a new login.
         """
         super(ApiToken, self).__init__(server, version, debug=debug)
         self.user = user or self._ui_prompt(APP_NAME, _("User"))
@@ -479,7 +497,10 @@ class ApiToken(ApiPublic):
         if os.path.exists(path):
             try:
                 with open(path, "r") as f:
-                    return f.read().strip()
+                    token = f.read().strip()
+                    if self.debug:
+                        sys.stdout.write("Loading token from: {0}\n".format(path))
+                    return token
             except (OSError, IOError):
                 return None
         return None
@@ -492,8 +513,13 @@ class ApiToken(ApiPublic):
                 f.write(token)
             if os.name == "posix":
                 os.chmod(path, 0o400)
-        except (OSError, IOError):
-            pass
+            if self.debug:
+                sys.stdout.write("Token saved to: {0}\n".format(path))
+        except (OSError, IOError) as e:
+            if self.debug:
+                sys.stdout.write(
+                    "Error saving token to {0}: {1}\n".format(path, str(e))
+                )
 
     def token_file(self):
         """Calculates the absolute path for the token file."""
