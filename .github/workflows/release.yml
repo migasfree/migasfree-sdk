@@ -45,7 +45,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gettext python3-all build-essential debhelper dh-python python3-distro
+          sudo apt-get install -y gettext python3-all build-essential debhelper dh-python python3-distro python3-stdeb
       - name: Install stdeb
         run: |
           python3 -m pip install --upgrade pip
