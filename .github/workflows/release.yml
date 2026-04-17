@@ -75,18 +75,20 @@ jobs:
           mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,RPMS,SRPMS}
           
           # Generate source tarball and copy to SOURCES
+          # Setuptools uses underscores but RPM spec expects hyphens. We repack to match.
           python3 setup.py sdist
-          cp dist/*.tar.gz ~/rpmbuild/SOURCES/
+          VERSION=$(cat VERSION)
+          mkdir -p dist/repack
+          tar -xzf dist/migasfree_sdk-${VERSION}.tar.gz -C dist/repack
+          mv dist/repack/migasfree_sdk-${VERSION} dist/repack/migasfree-sdk-${VERSION}
+          tar -czf dist/migasfree-sdk-${VERSION}.tar.gz -C dist/repack migasfree-sdk-${VERSION}
+          cp dist/migasfree-sdk-${VERSION}.tar.gz ~/rpmbuild/SOURCES/
           
           # Generate SPEC file
           python3 setup.py bdist_rpm --spec-only
           # The spec file is usually in dist/ or build/bdist.../rpm/SPECS/
           # but we can find it and copy it to SPECS
           find . -name "*.spec" -exec cp {} ~/rpmbuild/SPECS/ \;
-          
-          # Fix spec file to match sdist naming (setuptools uses underscores for sdist)
-          sed -i 's/Source0: %{name}/Source0: migasfree_sdk/g' ~/rpmbuild/SPECS/*.spec
-          sed -i 's/%setup -n %{name}/%setup -n migasfree_sdk/g' ~/rpmbuild/SPECS/*.spec
           
           # Build RPM
           rpmbuild -ba ~/rpmbuild/SPECS/*.spec
