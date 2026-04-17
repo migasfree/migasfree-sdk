@@ -8,7 +8,7 @@ The SDK is designed to be lightweight and has a single mandatory dependency: `re
 
 ### Core Classes
 
-1. **`ApiPublic`**: The base class. Handles connection pooling (`requests.Session`), URL building, and mTLS auto-discovery.
+1. **`ApiPublic`**: The base class. Handles connection pooling (`requests.Session`), URL building, mTLS auto-discovery, and **debug tracing**.
 2. **`ApiToken`**: Inherits from `ApiPublic`. Adds authentication logic, token persistence, and secure credential prompting.
 
 ### Key Logic

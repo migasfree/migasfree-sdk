@@ -8,6 +8,7 @@
 ## 🚀 Features
 
 - 🛡️ **Flexible Authentication**: Native support for public, Token-based, and **mTLS** access.
+- 🐛 **Debug Mode**: Built-in request tracing for easy troubleshooting and development.
 - 🔓 **mTLS Auto-discovery**: Automatically detects client certificates from `migasfree-client` paths for zero-config identity on managed nodes.
 - 🔍 **Dynamic Filtering**: Built-in generators to automatically handle pagination for large data volumes.
 - 📊 **Data Export**: Tools to export results directly to CSV format.
@@ -39,7 +40,8 @@ pip install -e .
 from migasfree_sdk.api import ApiPublic
 
 # Initialize API (tries to discover server if not provided)
-api = ApiPublic(server='migasfree.example.com')
+# You can specify the protocol (http/https) directly
+api = ApiPublic(server='https://migasfree.example.com', debug=True)
 
 # Get projects
 projects = api.get('projects')
@@ -124,6 +126,22 @@ coverage report
 ```
 
 Check our [Developer Guide](docs/developer_guide.md) for more details on architecture and contribution.
+
+## 🔍 Troubleshooting & Debugging
+
+If you encounter issues (like `403 Forbidden` errors), you can enable the **debug mode** to see the exact requests being made:
+
+```python
+api = ApiToken(server='https://migasfree.example.com', debug=True)
+```
+
+In debug mode, the SDK will print:
+* The connected server hostname.
+* The HTTP method and full URL of every request.
+* Cleaner error messages (automatically stripping HTML bodies from 4xx/5xx responses).
+
+> [!TIP]
+> Most production servers require `https://` for authenticated requests. If you get a 403 error using `http://`, try forcing `https://` in the server address.
 
 ## ⚖️ License
 
