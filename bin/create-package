@@ -6,9 +6,9 @@ function get_python
 
     if grep -q -m 1 python3 "$_FILE"
     then
-        which python3
+        command -v python3
     else
-        which python2
+        command -v python2
     fi
 }
 
@@ -20,11 +20,11 @@ function create_package
     if [ -f stdeb.cfg ]
     then
         _PYTHON_BUILD=$(get_python stdeb.cfg)
-        $_PYTHON_BUILD setup.py --command-packages=stdeb.command bdist_deb
+        "$_PYTHON_BUILD" setup.py --command-packages=stdeb.command bdist_deb
     else
         _PYTHON_BUILD=$(get_python setup.cfg)
         # Fix setuptools naming quirk for RPM: repack sdist to use hyphens
-        $_PYTHON_BUILD setup.py sdist
+        "$_PYTHON_BUILD" setup.py sdist
         local _VERSION
         _VERSION=$(cat VERSION)
         mkdir -p dist/repack
@@ -32,14 +32,14 @@ function create_package
         mv "dist/repack/migasfree_sdk-${_VERSION}" "dist/repack/migasfree-sdk-${_VERSION}"
         tar -czf "dist/migasfree-sdk-${_VERSION}.tar.gz" -C dist/repack "migasfree-sdk-${_VERSION}"
         rm -rf dist/repack
-        $_PYTHON_BUILD setup.py bdist_rpm
+        "$_PYTHON_BUILD" setup.py bdist_rpm
     fi
 }
 
 function get_distro
 {
     local _PYTHON
-    _PYTHON=$(which python2 || which python3)
+    _PYTHON=$(command -v python2 || command -v python3)
     local _DISTRO
     _DISTRO=$($_PYTHON -c "import distro; print(distro.name().lower().strip().split()[0])")
     local _MAJOR_VERSION
