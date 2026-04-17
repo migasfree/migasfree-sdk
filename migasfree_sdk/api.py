@@ -54,7 +54,7 @@ class ApiPublic(object):
     protocol = "http"
     version = 1
 
-    def __init__(self, server="", version=1, cert=None, verify=True, debug=False, v5=None):
+    def __init__(self, server="", version=1, cert=None, verify=True, debug=False):
         """Initializes the ApiPublic instance.
 
         Args:
@@ -63,10 +63,9 @@ class ApiPublic(object):
             cert (str/tuple): Path to mTLS cert or (cert, key) tuple.
             verify (bool/str): SSL verification or path to CA bundle.
             debug (bool): Enable request tracing.
-            v5 (bool): Use Migasfree v5 URL structure. If None, auto-detects.
         """
         self.version = version
-        self.v5 = v5
+        self._v5 = None
         self.session = requests.Session()
         self.debug = debug
         self.session.headers.update(
@@ -104,10 +103,7 @@ class ApiPublic(object):
             self.session.cert = cert
 
         # Automatic v5 detection (Discovery)
-        self._v5 = None
-        if v5 is not None:
-            self._v5 = v5
-        elif self.session.cert:
+        if self.session.cert:
             self._v5 = True
 
         if verify is not True:
@@ -282,23 +278,30 @@ class ApiPublic(object):
         Returns:
             str: The full URL.
         """
-        if self.is_v5:
-            # Modern structure for v5
-            base = "{0}://{1}/api/v{2}/{3}/{4}/".format(
+        if isinstance(self, ApiToken):
+            # Authenticated endpoints consistently use /token/ in v4 and v5
+            base = "{0}://{1}/api/v{2}/token/{3}/".format(
                 self.protocol,
                 self.server,
                 self.version,
-                "token" if isinstance(self, ApiToken) else "public",
                 endpoint,
             )
         else:
-            # Legacy structure for v4 and others
-            base = "{0}://{1}/api/v{2}/{3}/".format(
-                self.protocol,
-                self.server,
-                self.version,
-                endpoint,
-            )
+            # Public endpoints might need /public/ in v5
+            if self.is_v5:
+                base = "{0}://{1}/api/v{2}/public/{3}/".format(
+                    self.protocol,
+                    self.server,
+                    self.version,
+                    endpoint,
+                )
+            else:
+                base = "{0}://{1}/api/v{2}/{3}/".format(
+                    self.protocol,
+                    self.server,
+                    self.version,
+                    endpoint,
+                )
         return "{0}{1}/".format(base, id_) if id_ is not None else base
 
     def get(self, endpoint, param=None):
@@ -521,7 +524,6 @@ class ApiToken(ApiPublic):
         debug=False,
         cert=None,
         ignore_cache=False,
-        v5=None,
     ):
         """Initializes ApiToken and handles authentication.
 
@@ -534,11 +536,8 @@ class ApiToken(ApiPublic):
             debug (bool): Enable request tracing.
             cert (str|tuple): mTLS certificate.
             ignore_cache (bool): If True, forces a new login.
-            v5 (bool): Use Migasfree v5 URL structure. If None, auto-detects.
         """
-        super(ApiToken, self).__init__(
-            server, version, cert=cert, debug=debug, v5=v5
-        )
+        super(ApiToken, self).__init__(server, version, cert=cert, debug=debug)
         self.user = user or self._ui_prompt(APP_NAME, _("User"))
 
         if token:

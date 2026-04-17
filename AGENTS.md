@@ -51,13 +51,13 @@ To ensure a drop-in replacement for SDK v1.5, the following standards are mainta
 - **Constructor Positional Stability**: The order of parameters in `ApiToken.__init__` is fixed to support positional initialization.
 - **Legacy Methods**: `id()`, `get_token()`, and `get_server_name()` are preserved as aliases or wrappers.
 - **Raw JSON Data**: `get()` returns the raw API response (including pagination metadata) to avoid breaking legacy data handling logic.
-- **Lazy Discovery**: The SDK automatically detects between Migasfree v4 (`/api/v1/`) and v5 (`/api/v1/public/` or `/api/v1/token/`) structures.
+- **Lazy Discovery**: The SDK automatically adapts between Migasfree v4 (`/api/v1/`) and v5 (`/api/v1/public/` or `/api/v1/token/`) structures.
 
 ## 6. Critical Rules
 
 1. **Python Compatibility**: Maintain strict compatibility for both Python 2.6+ and Python 3.x.
 2. **Security Integrity**: Do NOT bypass mTLS or shell injection checks. Use the `cryptography` library for P12 handling.
-3. **Lazy Discovery**: Rely on the `is_v5` property for transparent server detection. Use `v5=False` explicitly for legacy servers if auto-detection is not desired.
+3. **Lazy Discovery**: Rely on the `is_v5` property for transparent server detection in `ApiPublic`. `ApiToken` consistently uses `/token/` structure.
 4. **Cross-Platform**: Any UI contribution MUST handle both Linux (Zenity) and Windows (PowerShell).
 5. **No Auto-Discovery of Identity**: Administrative identity (certificates/tokens) MUST be provided explicitly by the user.
 
