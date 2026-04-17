@@ -291,20 +291,10 @@ class ApiPublic(object):
 
         if r.status_code in self._ok_codes:
             data = r.json()
-            # If it's a list, an explicit ID was provided, or it's not paginated, return as is
-            if (
-                isinstance(param, int)
-                or isinstance(data, list)
-                or "count" not in data
-                or param is None
-            ):
-                return data
-
-            if data["count"] == 1:
-                return data["results"][0]
-            elif data["count"] == 0:
-                raise RuntimeError(_("Not found"))
-            raise RuntimeError(_("Multiple records found"))
+            # If it's a paginated list, return only the results
+            if isinstance(data, dict) and "results" in data and "count" in data:
+                return data["results"]
+            return data
 
         msg = _("Status code: {0}").format(r.status_code)
         if "application/json" in r.headers.get("content-type", ""):
