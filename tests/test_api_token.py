@@ -61,6 +61,13 @@ class TestApiToken(unittest.TestCase):
                 api.session.headers["authorization"], "Token cached_token_456"
             )
 
+    def test_legacy_get_token(self):
+        """Test legacy get_token method alias."""
+        with patch("migasfree_sdk.api.ApiToken._manage_token") as mock_manage:
+            api = ApiToken(server=self.server, token="test")
+            api.get_token(save_token=True)
+            mock_manage.assert_called_once_with(True, False)
+
     def test_url_building_token(self):
         """Test URL building for authenticated requests."""
         # Authenticated URL must use /token/ instead of /public/

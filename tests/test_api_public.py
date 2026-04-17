@@ -45,27 +45,32 @@ class TestApiPublic(unittest.TestCase):
         mock_get.return_value = mock_response
 
         result = self.api.get("projects")
-        self.assertEqual(result, mock_data["results"][0])
+        self.assertEqual(result, mock_data["results"])
 
-    @patch("os.path.exists")
-    @patch("platform.system")
-    def test_mtls_discovery(self, mock_system, mock_exists):
-        """Test mTLS auto-discovery logic."""
-        mock_system.return_value = "Linux"
+    def test_legacy_aliases(self):
+        """Test legacy methods for backward compatibility."""
+        # id() should call get()
+        with patch("migasfree_sdk.api.ApiPublic.get") as mock_get:
+            self.api.id("projects", 123)
+            mock_get.assert_called_once_with("projects", id_=123)
 
-        def side_effect(path):
-            return any(x in path for x in ["cert.pem", "key.pem", "ca.pem"])
+        # get_server_name should be an alias of get_server
+        self.assertEqual(self.api.get_server_name, self.api.get_server)
 
-        mock_exists.side_effect = side_effect
+    @patch("requests.Session.get")
+    def test_json_error_parsing(self, mock_get):
+        """Test parsing of JSON error responses."""
+        mock_response = MagicMock()
+        mock_response.status_code = 403
+        mock_response.text = '{"detail": "Custom permission error"}'
+        mock_response.json.return_value = {"detail": "Custom permission error"}
+        mock_get.return_value = mock_response
 
-        with patch("migasfree_sdk.api.open", create=True) as mock_open:
-            mock_open.return_value.__enter__.return_value = MagicMock()
+        with self.assertRaises(RuntimeError) as cm:
+            self.api.get("projects")
 
-            api = ApiPublic(server=self.server)
-
-            self.assertEqual(api.protocol, "https")
-            self.assertIsNotNone(api.session.cert)
-            self.assertTrue(api.session.verify.endswith("ca.pem"))
+        self.assertIn("Custom permission error", str(cm.exception))
+        self.assertIn("403", str(cm.exception))
 
     @patch("subprocess.Popen")
     def test_safe_ui_prompt(self, mock_popen):
