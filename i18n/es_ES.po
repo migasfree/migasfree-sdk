@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: migasfree-sdk 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-03 12:25+0100\n"
+"POT-Creation-Date: 2026-04-17 10:43+0200\n"
 "PO-Revision-Date: 2020-02-03 12:26+0100\n"
 "Last-Translator: Jose Antonio Chavarría <jachavar@gmail.com>\n"
 "Language-Team: Jose Antonio Chavarría <jachavar@gmail.com>\n"
@@ -18,32 +18,123 @@ msgstr ""
 "X-Generator: Poedit 2.2.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: ../migasfree_sdk/api.py:131 ../migasfree_sdk/api.py:154
-#: ../migasfree_sdk/api.py:181 ../migasfree_sdk/api.py:306
+#: ../migasfree_sdk/api.py:121
+msgid ""
+"To use .p12 certificates, you must install the 'cryptography' library: pip "
+"install cryptography"
+msgstr ""
+"Para usar certificados .p12, debe instalar la librería 'cryptography': pip "
+"install cryptography"
+
+#: ../migasfree_sdk/api.py:127
+#, python-brace-format
+msgid "Certificate file not found: {0}"
+msgstr "Fichero de certificado no encontrado: {0}"
+
+#: ../migasfree_sdk/api.py:131
+#, python-brace-format
+msgid "Certificate Password for {0}"
+msgstr "Contraseña del certificado para {0}"
+
+#: ../migasfree_sdk/api.py:146
+#, python-brace-format
+msgid "Error loading PKCS12 certificate: {0}"
+msgstr "Error al cargar el certificado PKCS12: {0}"
+
+#: ../migasfree_sdk/api.py:236
+#, python-brace-format
+msgid "Server: {0}\n"
+msgstr "Servidor: {0}\n"
+
+#: ../migasfree_sdk/api.py:238
+#, python-brace-format
+msgid "mTLS: {0}\n"
+msgstr "mTLS: {0}\n"
+
+#: ../migasfree_sdk/api.py:239
+msgid "Active"
+msgstr "Activo"
+
+#: ../migasfree_sdk/api.py:239
+msgid "Inactive"
+msgstr "Inactivo"
+
+#: ../migasfree_sdk/api.py:246
+#, python-brace-format
+msgid "HEADERS: {0}\n"
+msgstr "CABECERAS: {0}\n"
+
+#: ../migasfree_sdk/api.py:289
+#, python-brace-format
+msgid "Network error connecting to {0}: {1}"
+msgstr "Error de red al conectar a {0}: {1}"
+
+#: ../migasfree_sdk/api.py:306
+msgid "Not found"
+msgstr "No encontrado"
+
+#: ../migasfree_sdk/api.py:307
+msgid "Multiple records found"
+msgstr "Se han encontrado múltiples registros"
+
+#: ../migasfree_sdk/api.py:309
+#, python-brace-format
+msgid "Status code: {0}"
+msgstr "Código de estado: {0}"
+
+#: ../migasfree_sdk/api.py:315 ../migasfree_sdk/api.py:317
+#: ../migasfree_sdk/api.py:321
+#, python-brace-format
+msgid ", detail: {0}"
+msgstr ", detalle: {0}"
+
+#: ../migasfree_sdk/api.py:323 ../migasfree_sdk/api.py:325
+#, python-brace-format
+msgid ", text: {0}"
+msgstr ", texto: {0}"
+
+#: ../migasfree_sdk/api.py:371
 #, python-brace-format
 msgid "Status code: {0}, text: {1}"
 msgstr "Código de estado: {0}, texto: {1}"
 
-#: ../migasfree_sdk/api.py:149
-msgid "Not found"
-msgstr "No encontrado"
-
-#: ../migasfree_sdk/api.py:151
-msgid "Multiple records found"
-msgstr "Se han encontrado múltiples registros"
-
-#: ../migasfree_sdk/api.py:220 ../migasfree_sdk/api.py:225
+#: ../migasfree_sdk/api.py:434
 msgid "Server"
 msgstr "Servidor"
 
-#: ../migasfree_sdk/api.py:311
-msgid "Can not continue without password"
-msgstr "No se puede continuar sin contraseña"
-
-#: ../migasfree_sdk/api.py:350 ../migasfree_sdk/api.py:356
+#: ../migasfree_sdk/api.py:495
 msgid "User"
 msgstr "Usuario"
 
-#: ../migasfree_sdk/api.py:368 ../migasfree_sdk/api.py:369
+#: ../migasfree_sdk/api.py:511
 msgid "Password"
 msgstr "Contraseña"
+
+#: ../migasfree_sdk/api.py:513
+msgid "Can not continue without password"
+msgstr "No se puede continuar sin contraseña"
+
+#: ../migasfree_sdk/api.py:538
+#, python-brace-format
+msgid "Auth failed: {0}"
+msgstr "Fallo de autenticación: {0}"
+
+#: ../migasfree_sdk/api.py:540
+#, python-brace-format
+msgid "Error requesting token: {0}"
+msgstr "Error al solicitar el token: {0}"
+
+#: ../migasfree_sdk/api.py:554
+#, python-brace-format
+msgid "Loading token from: {0}\n"
+msgstr "Cargando token desde: {0}\n"
+
+#: ../migasfree_sdk/api.py:569
+#, python-brace-format
+msgid "Token saved to: {0}\n"
+msgstr "Token guardado en: {0}\n"
+
+#: ../migasfree_sdk/api.py:573
+#, python-brace-format
+msgid "Error saving token to {0}: {1}\n"
+msgstr "Error al guardar el token en {0}: {1}\n"
