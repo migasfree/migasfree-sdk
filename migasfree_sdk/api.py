@@ -285,7 +285,21 @@ class ApiPublic(object):
             raise RuntimeError(_("Multiple records found"))
 
         msg = _("Status code: {0}").format(r.status_code)
-        if "text/html" not in r.headers.get("content-type", ""):
+        if "application/json" in r.headers.get("content-type", ""):
+            try:
+                error_data = r.json()
+                if isinstance(error_data, dict):
+                    if "detail" in error_data:
+                        msg += _(", detail: {0}").format(error_data["detail"])
+                    elif "non_field_errors" in error_data:
+                        msg += _(", detail: {0}").format(
+                            ". ".join(error_data["non_field_errors"])
+                        )
+                elif isinstance(error_data, list):
+                    msg += _(", detail: {0}").format(". ".join(error_data))
+            except (ValueError, KeyError):
+                msg += _(", text: {0}").format(r.text)
+        elif "text/html" not in r.headers.get("content-type", ""):
             msg += _(", text: {0}").format(r.text)
         raise RuntimeError(msg)
 
@@ -483,7 +497,20 @@ class ApiToken(ApiPublic):
                     if save_token:
                         self.save_token_to_file(token)
                 else:
-                    raise RuntimeError(_("Auth failed: {0}").format(r.text))
+                    try:
+                        error_data = r.json()
+                        if isinstance(error_data, dict):
+                            if "non_field_errors" in error_data:
+                                msg = ". ".join(error_data["non_field_errors"])
+                            elif "detail" in error_data:
+                                msg = error_data["detail"]
+                            else:
+                                msg = str(error_data)
+                        else:
+                            msg = r.text
+                    except (ValueError, KeyError):
+                        msg = r.text
+                    raise RuntimeError(_("Auth failed: {0}").format(msg))
             except requests.exceptions.RequestException as e:
                 raise RuntimeError(_("Error requesting token: {0}").format(str(e)))
 
