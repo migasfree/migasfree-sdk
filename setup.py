@@ -119,6 +119,10 @@ setup(
     platforms=["Linux"],
     description="Migasfree Software Development Kit",
     long_description=README,
+    install_requires=[
+        "requests",
+        "cryptography",
+    ],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
