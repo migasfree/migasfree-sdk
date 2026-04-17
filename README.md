@@ -136,9 +136,10 @@ api = ApiToken(server='https://migasfree.example.com', debug=True)
 ```
 
 In debug mode, the SDK will print:
-* The connected server hostname.
-* The HTTP method and full URL of every request.
-* Cleaner error messages (automatically stripping HTML bodies from 4xx/5xx responses).
+
+- The connected server hostname.
+- The HTTP method and full URL of every request.
+- Cleaner error messages (automatically stripping HTML bodies from 4xx/5xx responses).
 
 > [!TIP]
 > Most production servers require `https://` for authenticated requests. If you get a 403 error using `http://`, try forcing `https://` in the server address.
