@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 10:43+0200\n"
+"POT-Creation-Date: 2026-04-17 17:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,121 +17,121 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../migasfree_sdk/api.py:121
+#: ../migasfree_sdk/api.py:159
 msgid ""
 "To use .p12 certificates, you must install the 'cryptography' library: pip "
 "install cryptography"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:127
+#: ../migasfree_sdk/api.py:165
 #, python-brace-format
 msgid "Certificate file not found: {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:131
+#: ../migasfree_sdk/api.py:169
 #, python-brace-format
 msgid "Certificate Password for {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:146
+#: ../migasfree_sdk/api.py:184
 #, python-brace-format
 msgid "Error loading PKCS12 certificate: {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:236
+#: ../migasfree_sdk/api.py:274
 #, python-brace-format
 msgid "Server: {0}\n"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:238
+#: ../migasfree_sdk/api.py:276
 #, python-brace-format
 msgid "mTLS: {0}\n"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:239
+#: ../migasfree_sdk/api.py:277
 msgid "Active"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:239
+#: ../migasfree_sdk/api.py:277
 msgid "Inactive"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:246
+#: ../migasfree_sdk/api.py:284
 #, python-brace-format
 msgid "HEADERS: {0}\n"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:289
+#: ../migasfree_sdk/api.py:357
 #, python-brace-format
 msgid "Network error connecting to {0}: {1}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:306
+#: ../migasfree_sdk/api.py:371
 msgid "Not found"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:307
+#: ../migasfree_sdk/api.py:373
 msgid "Multiple records found"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:309
+#: ../migasfree_sdk/api.py:375
 #, python-brace-format
 msgid "Status code: {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:315 ../migasfree_sdk/api.py:317
-#: ../migasfree_sdk/api.py:321
+#: ../migasfree_sdk/api.py:381 ../migasfree_sdk/api.py:383
+#: ../migasfree_sdk/api.py:387
 #, python-brace-format
 msgid ", detail: {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:323 ../migasfree_sdk/api.py:325
+#: ../migasfree_sdk/api.py:389 ../migasfree_sdk/api.py:391
 #, python-brace-format
 msgid ", text: {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:371
+#: ../migasfree_sdk/api.py:437
 #, python-brace-format
 msgid "Status code: {0}, text: {1}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:434
+#: ../migasfree_sdk/api.py:500
 msgid "Server"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:495
+#: ../migasfree_sdk/api.py:564
 msgid "User"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:511
+#: ../migasfree_sdk/api.py:586
 msgid "Password"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:513
+#: ../migasfree_sdk/api.py:588
 msgid "Can not continue without password"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:538
+#: ../migasfree_sdk/api.py:613
 #, python-brace-format
 msgid "Auth failed: {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:540
+#: ../migasfree_sdk/api.py:615
 #, python-brace-format
 msgid "Error requesting token: {0}"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:554
+#: ../migasfree_sdk/api.py:629
 #, python-brace-format
 msgid "Loading token from: {0}\n"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:569
+#: ../migasfree_sdk/api.py:644
 #, python-brace-format
 msgid "Token saved to: {0}\n"
 msgstr ""
 
-#: ../migasfree_sdk/api.py:573
+#: ../migasfree_sdk/api.py:648
 #, python-brace-format
 msgid "Error saving token to {0}: {1}\n"
 msgstr ""

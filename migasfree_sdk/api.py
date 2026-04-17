@@ -104,6 +104,7 @@ class ApiPublic(object):
 
         # Automatic v5 detection (Discovery)
         if self.session.cert:
+            self.protocol = "https"
             self._v5 = True
 
         if verify is not True:
@@ -146,12 +147,6 @@ class ApiPublic(object):
         # We assume legacy v4 over current protocol
         self._v5 = False
         return False
-
-    def _get_mtls_base_path(self):
-        if platform.system() == "Windows":
-            prog_data = os.environ.get("PROGRAMDATA", "C:\\ProgramData")
-            return os.path.join(prog_data, "migasfree-client", "mtls")
-        return "/var/migasfree-client/mtls"
 
     def _handle_pkcs12(self, p12_path):
         """Converts PKCS12 to PEM on the fly using cryptography library."""
@@ -344,7 +339,8 @@ class ApiPublic(object):
             param (int/str/dict): Optional ID for a single record or dict for filters.
 
         Returns:
-            dict/list: The parsed JSON data.
+            dict/list: The parsed JSON data. For v5, returns raw JSON. For v4,
+                automatically unwraps single results from paginated responses.
 
         Raises:
             Exception: If the request fails or returns an error status code.
@@ -362,7 +358,19 @@ class ApiPublic(object):
             )
 
         if r.status_code in self._ok_codes:
-            return r.json()
+            data = r.json()
+            if self.is_v5:
+                return data
+
+            # Legacy v4 behavior
+            if isinstance(data, (list,)) or "count" not in data:
+                return data
+            if data["count"] == 1:
+                return data["results"][0]
+            elif data["count"] == 0:
+                raise RuntimeError(_("Not found"))
+            else:
+                raise RuntimeError(_("Multiple records found"))
 
         msg = _("Status code: {0}").format(r.status_code)
         if "application/json" in r.headers.get("content-type", ""):

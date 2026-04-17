@@ -18,6 +18,7 @@ The SDK is designed to be lightweight and has a single mandatory dependency: `re
 * **Debug Tracing**: The `_trace` method centralizes request logging, including server identity, mTLS status, redacted headers, and parsed JSON errors.
 * **Safe Subprocesses**: UI prompts (`zenity`, `dialog`, `powershell`) are invoked using list-based arguments to prevent shell injection vulnerabilities.
 * **Dual Compatibility**: We use conditional imports and legacy-friendly syntax to maintain support for Python 2.6 through 3.x.
+* **Hybrid GET behavior**: The `get()` method adapts its return value based on the server version. For **v5**, it returns the raw JSON (including pagination). For **v4**, it automatically unwraps single results and raises legacy exceptions (`Not found`, `Multiple records found`) to ensure backward compatibility with older scripts.
 
 ## 🧪 Testing
 
