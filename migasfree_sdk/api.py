@@ -233,15 +233,17 @@ class ApiPublic(object):
     def _trace(self, method, url):
         """Prints debug information for a request."""
         if self.debug:
-            sys.stdout.write("Server: {0}\n".format(self.server))
+            sys.stdout.write(_("Server: {0}\n").format(self.server))
             sys.stdout.write(
-                "mTLS: {0}\n".format("Active" if self.session.cert else "Inactive")
+                _("mTLS: {0}\n").format(
+                    _("Active") if self.session.cert else _("Inactive")
+                )
             )
             sys.stdout.write("{0} {1}\n".format(method, url))
             headers = self.session.headers.copy()
             if "authorization" in headers:
                 headers["authorization"] = "Token ********"
-            sys.stdout.write("HEADERS: {0}\n".format(headers))
+            sys.stdout.write(_("HEADERS: {0}\n").format(headers))
 
     def url(self, endpoint, id_=None):
         """Builds a complete API URL.
@@ -549,7 +551,7 @@ class ApiToken(ApiPublic):
                 with open(path, "r") as f:
                     token = f.read().strip()
                     if self.debug:
-                        sys.stdout.write("Loading token from: {0}\n".format(path))
+                        sys.stdout.write(_("Loading token from: {0}\n").format(path))
                     return token
             except (OSError, IOError):
                 return None
@@ -564,11 +566,11 @@ class ApiToken(ApiPublic):
             if os.name == "posix":
                 os.chmod(path, 0o400)
             if self.debug:
-                sys.stdout.write("Token saved to: {0}\n".format(path))
+                sys.stdout.write(_("Token saved to: {0}\n").format(path))
         except (OSError, IOError) as e:
             if self.debug:
                 sys.stdout.write(
-                    "Error saving token to {0}: {1}\n".format(path, str(e))
+                    _("Error saving token to {0}: {1}\n").format(path, str(e))
                 )
 
     def token_file(self):
