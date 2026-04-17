@@ -19,6 +19,8 @@ import locale
 import gettext
 import sys
 
+from .version import __version__  # noqa: F401
+
 LOCALE_PATH = "/usr/share/locale"
 DOMAIN = "migasfree-sdk"
 
