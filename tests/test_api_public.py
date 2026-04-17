@@ -3,9 +3,9 @@
 import unittest
 
 try:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import MagicMock, patch, PropertyMock
 except ImportError:
-    from mock import MagicMock, patch
+    from mock import MagicMock, patch, PropertyMock
 
 from migasfree_sdk.api import ApiPublic
 
@@ -20,15 +20,19 @@ class TestApiPublic(unittest.TestCase):
 
     def test_url_building(self):
         """Test URL building logic."""
-        # Public URL
-        url = self.api.url("projects")
-        self.assertEqual(url, "http://migasfree.example.com/api/v1/public/projects/")
+        # Force v5 mode for these tests
+        with patch("migasfree_sdk.api.ApiPublic.is_v5", new_callable=PropertyMock) as mock_v5:
+            mock_v5.return_value = True
 
-        # Public URL with ID
-        url = self.api.url("projects", id_=123)
-        self.assertEqual(
-            url, "http://migasfree.example.com/api/v1/public/projects/123/"
-        )
+            # Public URL
+            url = self.api.url("projects")
+            self.assertEqual(url, "https://migasfree.example.com/api/v1/public/projects/")
+
+            # Public URL with ID
+            url = self.api.url("projects", id_=123)
+            self.assertEqual(
+                url, "https://migasfree.example.com/api/v1/public/projects/123/"
+            )
 
     @patch("requests.Session.get")
     def test_get_list(self, mock_get):
@@ -57,6 +61,24 @@ class TestApiPublic(unittest.TestCase):
 
         # get_server_name should be an alias of get_server
         self.assertEqual(self.api.get_server_name, self.api.get_server)
+
+    @patch("requests.Session.get")
+    def test_url_building_discovery(self, mock_get):
+        """Test URL building with automatic v5 discovery."""
+        # Scenario 1: Server is legacy (v4), probe returns 404
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_get.return_value = mock_response
+
+        api_legacy = ApiPublic(server=self.server)
+        url = api_legacy.url("computers")
+        self.assertEqual(url, "https://migasfree.example.com/api/v1/computers/")
+
+        # Scenario 2: Server is modern (v5), probe returns 200
+        mock_response.status_code = 200
+        api_modern = ApiPublic(server=self.server)
+        url = api_modern.url("computers")
+        self.assertEqual(url, "https://migasfree.example.com/api/v1/public/computers/")
 
     @patch("requests.Session.get")
     def test_json_error_parsing(self, mock_get):

@@ -54,7 +54,7 @@ class ApiPublic(object):
     protocol = "http"
     version = 1
 
-    def __init__(self, server="", version=1, cert=None, verify=True, debug=False):
+    def __init__(self, server="", version=1, cert=None, verify=True, debug=False, v5=None):
         """Initializes the ApiPublic instance.
 
         Args:
@@ -62,7 +62,11 @@ class ApiPublic(object):
             version (int): API version. Defaults to 1.
             cert (str/tuple): Path to mTLS cert or (cert, key) tuple.
             verify (bool/str): SSL verification or path to CA bundle.
+            debug (bool): Enable request tracing.
+            v5 (bool): Use Migasfree v5 URL structure. If None, auto-detects.
         """
+        self.version = version
+        self.v5 = v5
         self.session = requests.Session()
         self.debug = debug
         self.session.headers.update(
@@ -76,6 +80,7 @@ class ApiPublic(object):
         if "://" in server:
             self.protocol, self.server = server.split("://")
         else:
+            self.protocol = "https"
             self.server = server
 
         if not self.server:
@@ -97,12 +102,34 @@ class ApiPublic(object):
 
         if cert:
             self.session.cert = cert
-            self.protocol = "https"
+
+        # Automatic v5 detection (Discovery)
+        self._v5 = None
+        if v5 is not None:
+            self._v5 = v5
+        elif self.session.cert:
+            self._v5 = True
 
         if verify is not True:
             self.session.verify = verify
 
-        self.version = version
+    @property
+    def is_v5(self):
+        """Detects if the server is Migasfree v5 (Lazy Discovery)."""
+        if self._v5 is not None:
+            return self._v5
+
+        # Try to detect by probing a known v5 endpoint
+        probe_url = "{0}/api/v{1}/public/server/info/".format(
+            self.server, self.version
+        )
+        try:
+            # Short timeout for discovery
+            r = self.session.get(probe_url, timeout=2)
+            self._v5 = r.status_code == 200
+        except Exception:
+            self._v5 = False
+        return self._v5
 
     def _get_mtls_base_path(self):
         if platform.system() == "Windows":
@@ -246,22 +273,32 @@ class ApiPublic(object):
             sys.stdout.write(_("HEADERS: {0}\n").format(headers))
 
     def url(self, endpoint, id_=None):
-        """Builds a complete API URL.
+        """Builds the full API URL.
 
         Args:
-            endpoint (str): API resource name (e.g., 'computers').
+            endpoint (str): API resource.
             id_ (int/str): Optional record ID.
 
         Returns:
-            str: The full URL for the request.
+            str: The full URL.
         """
-        base = "{0}://{1}/api/v{2}/{3}/{4}/".format(
-            self.protocol,
-            self.server,
-            self.version,
-            "token" if isinstance(self, ApiToken) else "public",
-            endpoint,
-        )
+        if self.is_v5:
+            # Modern structure for v5
+            base = "{0}://{1}/api/v{2}/{3}/{4}/".format(
+                self.protocol,
+                self.server,
+                self.version,
+                "token" if isinstance(self, ApiToken) else "public",
+                endpoint,
+            )
+        else:
+            # Legacy structure for v4 and others
+            base = "{0}://{1}/api/v{2}/{3}/".format(
+                self.protocol,
+                self.server,
+                self.version,
+                endpoint,
+            )
         return "{0}{1}/".format(base, id_) if id_ is not None else base
 
     def get(self, endpoint, param=None):
@@ -484,6 +521,7 @@ class ApiToken(ApiPublic):
         debug=False,
         cert=None,
         ignore_cache=False,
+        v5=None,
     ):
         """Initializes ApiToken and handles authentication.
 
@@ -496,8 +534,11 @@ class ApiToken(ApiPublic):
             debug (bool): Enable request tracing.
             cert (str|tuple): mTLS certificate.
             ignore_cache (bool): If True, forces a new login.
+            v5 (bool): Use Migasfree v5 URL structure. If None, auto-detects.
         """
-        super(ApiToken, self).__init__(server, version, cert=cert, debug=debug)
+        super(ApiToken, self).__init__(
+            server, version, cert=cert, debug=debug, v5=v5
+        )
         self.user = user or self._ui_prompt(APP_NAME, _("User"))
 
         if token:

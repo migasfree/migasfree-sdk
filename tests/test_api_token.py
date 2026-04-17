@@ -3,9 +3,9 @@
 import unittest
 
 try:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import MagicMock, patch, PropertyMock
 except ImportError:
-    from mock import MagicMock, patch
+    from mock import MagicMock, patch, PropertyMock
 
 from migasfree_sdk.api import ApiToken
 
@@ -70,13 +70,15 @@ class TestApiToken(unittest.TestCase):
 
     def test_url_building_token(self):
         """Test URL building for authenticated requests."""
-        # Authenticated URL must use /token/ instead of /public/
+        # Authenticated URL must use /token/ instead of /public/ in v5
         with patch("migasfree_sdk.api.ApiToken._manage_token"):
-            api = ApiToken(server=self.server, user=self.user, token="test")
-            url = api.url("computers")
-            self.assertEqual(
-                url, "http://migasfree.example.com/api/v1/token/computers/"
-            )
+            with patch("migasfree_sdk.api.ApiPublic.is_v5", new_callable=PropertyMock) as mock_v5:
+                mock_v5.return_value = True
+                api = ApiToken(server=self.server, user=self.user, token="test")
+                url = api.url("computers")
+                self.assertEqual(
+                    url, "https://migasfree.example.com/api/v1/token/computers/"
+                )
 
 
 if __name__ == "__main__":

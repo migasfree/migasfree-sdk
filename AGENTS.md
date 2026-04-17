@@ -44,7 +44,24 @@ Always use a virtual environment.
 - **Security (Injection)**: NEVER use `shell=True`. ALWAYS use list-based arguments for `subprocess`.
 - **Interactivity**: The SDK includes logic to prompt for credentials using `zenity`, `dialog` or `powershell`.
 
-## 5. Available Skills & Specialized Constraints
+## 5. Backwards Compatibility
+
+To ensure a drop-in replacement for SDK v1.5, the following standards are maintained:
+
+- **Constructor Positional Stability**: The order of parameters in `ApiToken.__init__` is fixed to support positional initialization.
+- **Legacy Methods**: `id()`, `get_token()`, and `get_server_name()` are preserved as aliases or wrappers.
+- **Raw JSON Data**: `get()` returns the raw API response (including pagination metadata) to avoid breaking legacy data handling logic.
+- **Lazy Discovery**: The SDK automatically detects between Migasfree v4 (`/api/v1/`) and v5 (`/api/v1/public/` or `/api/v1/token/`) structures.
+
+## 6. Critical Rules
+
+1. **Python Compatibility**: Maintain strict compatibility for both Python 2.6+ and Python 3.x.
+2. **Security Integrity**: Do NOT bypass mTLS or shell injection checks. Use the `cryptography` library for P12 handling.
+3. **Lazy Discovery**: Rely on the `is_v5` property for transparent server detection. Use `v5=False` explicitly for legacy servers if auto-detection is not desired.
+4. **Cross-Platform**: Any UI contribution MUST handle both Linux (Zenity) and Windows (PowerShell).
+5. **No Auto-Discovery of Identity**: Administrative identity (certificates/tokens) MUST be provided explicitly by the user.
+
+## 7. Available Skills
 
 This project is supported by specialized AI Skills. **ALWAYS** check and use these skills:
 
@@ -52,11 +69,3 @@ This project is supported by specialized AI Skills. **ALWAYS** check and use the
 - **Security**: `security-expert` (mTLS, Token handling, API security)
 - **Bash & Scripting**: `bash-expert` (Packaging and integration scripts)
 - **Documentation**: `docs-expert` (Diátaxis, REST docs)
-
-## 6. Critical Rules
-
-1. **Python Compatibility**: Maintain strict compatibility for both Python 2 and 3.
-2. **Security Integrity**: Do NOT bypass mTLS or shell injection checks. Use the `cryptography` library for P12 handling.
-3. **Cross-Platform**: Any UI contribution MUST handle both Linux (Zenity) and Windows (PowerShell).
-4. **Dependencies**: `requests` and `cryptography` are mandatory.
-5. **No Auto-Discovery**: Administrative identity MUST be provided explicitly by the user.
