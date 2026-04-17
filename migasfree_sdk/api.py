@@ -49,7 +49,7 @@ class ApiPublic(object):
     protocol = 'http'
     version = 1
 
-    def __init__(self, server='', version=1, cert=None, verify=True):
+    def __init__(self, server='', version=1, cert=None, verify=True, debug=False):
         """Initializes the ApiPublic instance.
 
         Args:
@@ -59,6 +59,7 @@ class ApiPublic(object):
             verify (bool/str): SSL verification or path to CA bundle.
         """
         self.session = requests.Session()
+        self.debug = debug
         self.session.headers.update({'content-type': 'application/json'})
         self.session.proxies = {'http': '', 'https': ''}
 
@@ -71,6 +72,9 @@ class ApiPublic(object):
                 self.server = config.get('server', 'localhost')
             except ImportError:
                 self.server = self.get_server()
+
+        if self.debug:
+            print('Server: {0}'.format(self.server))
 
         # mTLS discovery and setup
         if cert is None:
@@ -213,6 +217,9 @@ class ApiPublic(object):
         params = param if isinstance(param, dict) else {}
         url = self.url(endpoint, id_=param if isinstance(param, int) else None)
 
+        if self.debug:
+            print('GET {0}'.format(url))
+
         try:
             r = self.session.get(url, params=params)
         except requests.exceptions.RequestException as e:
@@ -229,7 +236,10 @@ class ApiPublic(object):
                 raise RuntimeError(_('Not found'))
             raise RuntimeError(_('Multiple records found'))
 
-        raise RuntimeError(_('Status code: {0}, text: {1}').format(r.status_code, r.text))
+        msg = _('Status code: {0}').format(r.status_code)
+        if 'text/html' not in r.headers.get('content-type', ''):
+            msg += _(', text: {0}').format(r.text)
+        raise RuntimeError(msg)
 
     def filter(self, endpoint, params=None):
         """Generator for filtered and paginated API requests.
@@ -269,6 +279,8 @@ class ApiPublic(object):
         Raises:
             Exception: If creation fails.
         """
+        if self.debug:
+            print('POST {0}'.format(self.url(endpoint)))
         r = self.session.post(self.url(endpoint), data=json.dumps(data))
         if r.status_code == requests.codes.created:
             return r.json().get('id')
@@ -284,6 +296,8 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
+        if self.debug:
+            print('POST {0}'.format(self.url(endpoint)))
         return self.session.post(self.url(endpoint), data=json.dumps(data))
 
     def delete(self, endpoint, id_):
@@ -296,6 +310,8 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
+        if self.debug:
+            print('DELETE {0}'.format(self.url(endpoint, id_=id_)))
         return self.session.delete(self.url(endpoint, id_=id_))
 
     def patch(self, endpoint, id_, data):
@@ -309,6 +325,8 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
+        if self.debug:
+            print('PATCH {0}'.format(self.url(endpoint, id_=id_)))
         return self.session.patch(self.url(endpoint, id_=id_), data=json.dumps(data))
 
     def put(self, endpoint, id_, data):
@@ -322,6 +340,8 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
+        if self.debug:
+            print('PUT {0}'.format(self.url(endpoint, id_=id_)))
         return self.session.put(self.url(endpoint, id_=id_), data=json.dumps(data))
 
     def get_server(self):
@@ -367,7 +387,7 @@ class ApiPublic(object):
 class ApiToken(ApiPublic):
     """Client for authenticated interactions using Token Authentication."""
 
-    def __init__(self, server='', user='', token='', save_token=False, version=1):
+    def __init__(self, server='', user='', token='', save_token=False, version=1, debug=False):
         """Initializes ApiToken and handles authentication.
 
         Args:
@@ -376,7 +396,7 @@ class ApiToken(ApiPublic):
             save_token (bool): If True, persist token locally.
             ... (other args inherited)
         """
-        super(ApiToken, self).__init__(server, version)
+        super(ApiToken, self).__init__(server, version, debug=debug)
         self.user = user or self._ui_prompt(APP_NAME, _('User'))
 
         if token:
