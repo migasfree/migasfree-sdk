@@ -72,9 +72,11 @@ class TestApiPublic(unittest.TestCase):
         self.assertIn("Custom permission error", str(cm.exception))
         self.assertIn("403", str(cm.exception))
 
+    @patch("platform.system")
     @patch("subprocess.Popen")
-    def test_safe_ui_prompt(self, mock_popen):
+    def test_safe_ui_prompt(self, mock_popen, mock_system):
         """Test UI prompt safety and fallback."""
+        mock_system.return_value = "Linux"
         mock_p = MagicMock()
         mock_p.communicate.return_value = (b"user_input\n", b"")
         mock_popen.return_value = mock_p
