@@ -63,7 +63,11 @@ class ApiPublic(object):
         self.session.headers.update({'content-type': 'application/json'})
         self.session.proxies = {'http': '', 'https': ''}
 
-        self.server = server
+        if '://' in server:
+            self.protocol, self.server = server.split('://')
+        else:
+            self.server = server
+
         if not self.server:
             try:
                 from migasfree_client import settings as client_settings
