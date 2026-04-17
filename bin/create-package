@@ -27,12 +27,30 @@ function create_package
         "$_PYTHON_BUILD" setup.py sdist
         local _VERSION
         _VERSION=$(cat VERSION)
+
+        # Prepare RPM build structure
+        mkdir -p ~/rpmbuild/{SOURCES,SPECS,BUILD,RPMS,SRPMS}
+
+        # Repack sdist to match RPM expectations (hyphens instead of underscores)
         mkdir -p dist/repack
         tar -xzf "dist/migasfree_sdk-${_VERSION}.tar.gz" -C dist/repack
         mv "dist/repack/migasfree_sdk-${_VERSION}" "dist/repack/migasfree-sdk-${_VERSION}"
         tar -czf "dist/migasfree-sdk-${_VERSION}.tar.gz" -C dist/repack "migasfree-sdk-${_VERSION}"
         rm -rf dist/repack
-        "$_PYTHON_BUILD" setup.py bdist_rpm
+
+        # Copy source to rpmbuild
+        cp "dist/migasfree-sdk-${_VERSION}.tar.gz" ~/rpmbuild/SOURCES/
+
+        # Generate and copy SPEC file
+        "$_PYTHON_BUILD" setup.py bdist_rpm --spec-only
+        find . -name "*.spec" -exec cp {} ~/rpmbuild/SPECS/ \;
+
+        # Build RPM manually
+        rpmbuild -ba ~/rpmbuild/SPECS/*.spec
+
+        # Copy result back to dist/
+        mkdir -p dist
+        cp ~/rpmbuild/RPMS/noarch/*.rpm dist/
     fi
 }
 
