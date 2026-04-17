@@ -201,6 +201,16 @@ class ApiPublic(object):
         """Checks if the process is running in a TTY or headless environment."""
         return os.environ.get("DISPLAY", "") == ""
 
+    def _trace(self, method, url):
+        """Prints debug information for a request."""
+        if self.debug:
+            sys.stdout.write("Server: {0}\n".format(self.server))
+            sys.stdout.write("{0} {1}\n".format(method, url))
+            headers = self.session.headers.copy()
+            if "authorization" in headers:
+                headers["authorization"] = "Token ********"
+            sys.stdout.write("HEADERS: {0}\n".format(headers))
+
     def url(self, endpoint, id_=None):
         """Builds a complete API URL.
 
@@ -236,8 +246,7 @@ class ApiPublic(object):
         params = param if isinstance(param, dict) else {}
         url = self.url(endpoint, id_=param if isinstance(param, int) else None)
 
-        if self.debug:
-            print("GET {0}".format(url))
+        self._trace("GET", url)
 
         try:
             r = self.session.get(url, params=params)
@@ -300,8 +309,7 @@ class ApiPublic(object):
         Raises:
             Exception: If creation fails.
         """
-        if self.debug:
-            print("POST {0}".format(self.url(endpoint)))
+        self._trace("POST", self.url(endpoint))
         r = self.session.post(self.url(endpoint), data=json.dumps(data))
         if r.status_code == requests.codes.created:
             return r.json().get("id")
@@ -319,8 +327,7 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
-        if self.debug:
-            print("POST {0}".format(self.url(endpoint)))
+        self._trace("POST", self.url(endpoint))
         return self.session.post(self.url(endpoint), data=json.dumps(data))
 
     def delete(self, endpoint, id_):
@@ -333,8 +340,7 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
-        if self.debug:
-            print("DELETE {0}".format(self.url(endpoint, id_=id_)))
+        self._trace("DELETE", self.url(endpoint, id_=id_))
         return self.session.delete(self.url(endpoint, id_=id_))
 
     def patch(self, endpoint, id_, data):
@@ -348,8 +354,7 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
-        if self.debug:
-            print("PATCH {0}".format(self.url(endpoint, id_=id_)))
+        self._trace("PATCH", self.url(endpoint, id_=id_))
         return self.session.patch(self.url(endpoint, id_=id_), data=json.dumps(data))
 
     def put(self, endpoint, id_, data):
@@ -363,8 +368,7 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
-        if self.debug:
-            print("PUT {0}".format(self.url(endpoint, id_=id_)))
+        self._trace("PUT", self.url(endpoint, id_=id_))
         return self.session.put(self.url(endpoint, id_=id_), data=json.dumps(data))
 
     def get_server(self):
