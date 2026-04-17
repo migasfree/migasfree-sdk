@@ -49,10 +49,12 @@ class TestApiPublic(unittest.TestCase):
 
     def test_legacy_aliases(self):
         """Test legacy methods for backward compatibility."""
-        # id() should call get()
+        # id() should call get() and return the 'id' field
         with patch("migasfree_sdk.api.ApiPublic.get") as mock_get:
-            self.api.id("projects", 123)
+            mock_get.return_value = {"id": 123, "name": "Project 1"}
+            result = self.api.id("projects", 123)
             mock_get.assert_called_once_with("projects", param=123)
+            self.assertEqual(result, 123)
 
         # get_server_name should be an alias of get_server
         self.assertEqual(self.api.get_server_name, self.api.get_server)

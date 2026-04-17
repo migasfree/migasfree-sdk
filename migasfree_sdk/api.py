@@ -315,17 +315,22 @@ class ApiPublic(object):
             msg += _(", text: {0}").format(r.text)
         raise RuntimeError(msg)
 
-    def id(self, endpoint, id_):
-        """Gets a single record by ID. Legacy method for backward compatibility.
+    def id(self, endpoint, param):
+        """Gets the ID of a record. Legacy method for backward compatibility.
 
         Args:
             endpoint (str): API resource.
-            id_ (int/str): Record ID.
+            param (int/str/dict): Record ID or filters.
 
         Returns:
-            dict/requests.Response: The record data or the response object on error.
+            int: The ID of the record or None if not found.
         """
-        return self.get(endpoint, param=id_)
+        data = self.get(endpoint, param=param)
+        if isinstance(data, list) and len(data) > 0:
+            return data[0].get("id")
+        elif isinstance(data, dict):
+            return data.get("id")
+        return None
 
     def filter(self, endpoint, params=None):
         """Generator for filtered and paginated API requests.
