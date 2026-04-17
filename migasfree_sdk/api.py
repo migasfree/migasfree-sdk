@@ -483,10 +483,10 @@ class ApiToken(ApiPublic):
         server="",
         user="",
         token="",
-        cert=None,
-        save_token=False,
         version=1,
+        save_token=False,
         debug=False,
+        cert=None,
         ignore_cache=False,
     ):
         """Initializes ApiToken and handles authentication.
@@ -495,11 +495,11 @@ class ApiToken(ApiPublic):
             server (str): Server URL.
             user (str): Username.
             token (str): Direct API token.
-            cert (str|tuple): mTLS certificate (path to .pem or tuple of (cert, key)).
-            save_token (bool): If True, persists the token in a hidden file in the user's home directory for future reuse. Defaults to False.
             version (int): API version.
+            save_token (bool): If True, persists the token.
             debug (bool): Enable request tracing.
-            ignore_cache (bool): If True, bypasses local token storage and forces a new login.
+            cert (str|tuple): mTLS certificate.
+            ignore_cache (bool): If True, forces a new login.
         """
         super(ApiToken, self).__init__(server, version, cert=cert, debug=debug)
         self.user = user or self._ui_prompt(APP_NAME, _("User"))
