@@ -32,20 +32,19 @@ class TestApiPublic(unittest.TestCase):
 
     @patch("requests.Session.get")
     def test_get_list(self, mock_get):
-        """Test GET list results."""
-        mock_data = {
-            "count": 1,
-            "next": None,
-            "previous": None,
-            "results": [{"id": 1, "name": "Project 1"}],
-        }
+        """Test getting a list of records."""
+        # Scenario: Success, returns a paginated list
+        records = [{"id": 1, "name": "Item 1"}, {"id": 2, "name": "Item 2"}]
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = mock_data
+        mock_response.json.return_value = {"count": 2, "results": records}
         mock_get.return_value = mock_response
 
-        result = self.api.get("projects")
-        self.assertEqual(result, mock_data["results"])
+        result = self.api.get("computers")
+
+        self.assertEqual(result["count"], 2)
+        self.assertEqual(len(result["results"]), 2)
+        self.assertEqual(result["results"][0]["name"], "Item 1")
 
     def test_legacy_aliases(self):
         """Test legacy methods for backward compatibility."""

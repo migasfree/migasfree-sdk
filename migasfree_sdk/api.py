@@ -290,11 +290,7 @@ class ApiPublic(object):
             )
 
         if r.status_code in self._ok_codes:
-            data = r.json()
-            # If it's a paginated list, return only the results
-            if isinstance(data, dict) and "results" in data and "count" in data:
-                return data["results"]
-            return data
+            return r.json()
 
         msg = _("Status code: {0}").format(r.status_code)
         if "application/json" in r.headers.get("content-type", ""):
