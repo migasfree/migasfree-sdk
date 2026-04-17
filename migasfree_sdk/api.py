@@ -99,10 +99,7 @@ class ApiPublic(object):
             self.session.cert = cert
             self.protocol = "https"
 
-        if verify is True:
-            ca = self._discover_mtls_ca()
-            self.session.verify = ca if ca else True
-        else:
+        if verify is not True:
             self.session.verify = verify
 
         self.version = version
