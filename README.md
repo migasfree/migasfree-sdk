@@ -7,9 +7,8 @@
 
 ## 🚀 Features
 
-- 🛡️ **Flexible Authentication**: Native support for public, Token-based, and **mTLS** access.
+- 🛡️ **Flexible Authentication**: Native support for public, Token-based, and **mTLS** (PEM/.p12) access.
 - 🐛 **Debug Mode**: Built-in request tracing for easy troubleshooting and development.
-- 🔓 **mTLS Auto-discovery**: Automatically detects client certificates from `migasfree-client` paths for zero-config identity on managed nodes.
 - 🔍 **Dynamic Filtering**: Built-in generators to automatically handle pagination for large data volumes.
 - 📊 **Data Export**: Tools to export results directly to CSV format.
 - 🖥️ **Interactivity**: Safe fallback mechanisms (`zenity`, `dialog`, or **PowerShell** on Windows) to prompt for credentials.
@@ -87,17 +86,22 @@ api.export_csv(
 
 Migasfree SDK is fully compatible with **Migasfree v5** security standards.
 
-### Automatic Discovery
-
-If you run the SDK on a machine managed by `migasfree-client`, it will automatically discover the machine's certificates (`cert.pem`, `key.pem`) in `/var/migasfree-client/mtls/` (Linux) or `%PROGRAMDATA%\migasfree-client\mtls\` (Windows).
-
 ### Manual Configuration
 
+You can provide a specific certificate (e.g., an administrative certificate) or use the PKCS#12 (.p12) format.
+
 ```python
-api = ApiPublic(
-    server='migasfree.example.com',
-    cert=('/path/to/client.crt', '/path/to/client.key'),
-    verify='/path/to/ca.crt'
+# PEM format
+api = ApiToken(
+    server='https://migasfree.es',
+    cert=('/path/to/admin.crt', '/path/to/admin.key')
+)
+
+# PKCS#12 (.p12) format (requires: pip install cryptography)
+api = ApiToken(
+    server='https://migasfree.es',
+    cert='/path/to/admin.p12',
+    debug=True
 )
 ```
 
@@ -105,7 +109,7 @@ api = ApiPublic(
 
 | Feature | Linux | Windows |
 | :--- | :---: | :---: |
-| **mTLS Discovery** | ✅ | ✅ |
+| **mTLS Support** | ✅ (.pem / .p12) | ✅ (.pem / .p12) |
 | **GUI Prompts** | `Zenity` / `Dialog` | `PowerShell` |
 | **Python 2.6+** | ✅ | ✅ |
 | **Python 3.x** | ✅ | ✅ |
@@ -138,7 +142,10 @@ api = ApiToken(server='https://migasfree.example.com', debug=True)
 In debug mode, the SDK will print:
 
 - The connected server hostname.
+- **mTLS Status**: Whether certificates are being used.
+- **Token Tracing**: Where the token is loaded from or saved to.
 - The HTTP method and full URL of every request.
+- **Parsed Errors**: Clear error messages extracted from JSON responses (e.g., `non_field_errors`).
 - Cleaner error messages (automatically stripping HTML bodies from 4xx/5xx responses).
 
 > [!TIP]

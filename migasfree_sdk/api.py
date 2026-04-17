@@ -90,11 +90,9 @@ class ApiPublic(object):
 
         # server identification is handled by _trace in requests
 
-        # mTLS discovery and setup
+        # mTLS setup
         self._temp_certs = []
-        if cert is None:
-            cert = self._discover_mtls_cert()
-        elif isinstance(cert, str) and cert.endswith(".p12"):
+        if isinstance(cert, str) and cert.endswith(".p12"):
             cert = self._handle_pkcs12(cert)
 
         if cert:
@@ -114,29 +112,6 @@ class ApiPublic(object):
             prog_data = os.environ.get("PROGRAMDATA", "C:\\ProgramData")
             return os.path.join(prog_data, "migasfree-client", "mtls")
         return "/var/migasfree-client/mtls"
-
-    def _discover_mtls_cert(self):
-        if not self.server:
-            return None
-        # Sanitize server name for directory
-        srv_dir = self.server.replace(":", "_").replace("/", "_")
-        base = os.path.join(self._get_mtls_base_path(), srv_dir)
-        cert = os.path.join(base, "cert.pem")
-        key = os.path.join(base, "key.pem")
-
-        if os.path.exists(cert) and os.path.exists(key):
-            try:
-                # Check readability
-                with open(cert, "r"), open(key, "r"):
-                    return (cert, key)
-            except (OSError, IOError) as e:
-                if self.debug:
-                    sys.stdout.write(
-                        "Warning: Found mTLS certs in {0} but could not read them: {1}\n".format(
-                            base, str(e)
-                        )
-                    )
-        return None
 
     def _handle_pkcs12(self, p12_path):
         """Converts PKCS12 to PEM on the fly using cryptography library."""
@@ -200,24 +175,6 @@ class ApiPublic(object):
                         os.remove(path)
                     except (OSError, IOError):
                         pass
-
-    def _discover_mtls_ca(self):
-        if not self.server:
-            return None
-        srv_dir = self.server.replace(":", "_").replace("/", "_")
-        ca = os.path.join(self._get_mtls_base_path(), srv_dir, "ca.pem")
-        if os.path.exists(ca):
-            try:
-                with open(ca, "r"):
-                    return ca
-            except (OSError, IOError) as e:
-                if self.debug:
-                    sys.stdout.write(
-                        "Warning: Found CA cert in {0} but could not read it: {1}\n".format(
-                            ca, str(e)
-                        )
-                    )
-        return None
 
     def _ui_prompt(self, title, text, entry_text="", hide_text=False):
         """Displays an interactive prompt using Zenity or Dialog.

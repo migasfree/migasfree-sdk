@@ -13,7 +13,9 @@ The SDK is designed to be lightweight and has a single mandatory dependency: `re
 
 ### Key Logic
 
-* **mTLS Discovery**: The SDK looks for certificates in standard system locations (`/var/migasfree-client/mtls` on Linux, `%PROGRAMDATA%` on Windows).
+* **mTLS Management**: The SDK supports `.pem` and `.p12` certificates provided explicitly via the `cert` parameter.
+* **PKCS#12 (.p12) Handling**: If a `.p12` file is provided, the SDK uses the `cryptography` library to convert it on the fly to a temporary `.pem` file. These temporary files are stored in `_temp_certs` and automatically deleted in the object's `__del__` method.
+* **Debug Tracing**: The `_trace` method centralizes request logging, including server identity, mTLS status, redacted headers, and parsed JSON errors.
 * **Safe Subprocesses**: UI prompts (`zenity`, `dialog`, `powershell`) are invoked using list-based arguments to prevent shell injection vulnerabilities.
 * **Dual Compatibility**: We use conditional imports and legacy-friendly syntax to maintain support for Python 2.6 through 3.x.
 
