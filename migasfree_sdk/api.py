@@ -445,6 +445,9 @@ class ApiPublic(object):
         """
         return self._ui_prompt(APP_NAME, _("Server"), "localhost")
 
+    # Alias for backward compatibility with 1.5
+    get_server_name = get_server
+
     def export_csv(self, endpoint, params=None, fields=None, output="output.csv"):
         """Exports API results to a CSV file.
 
@@ -509,7 +512,13 @@ class ApiToken(ApiPublic):
         if token:
             self.set_token(token)
         else:
-            self._manage_token(save_token, ignore_cache)
+            self.get_token(save_token, ignore_cache)
+
+    def get_token(self, save_token=False, ignore_cache=False):
+        """Handles token loading, acquisition, and persistence.
+        Legacy method name from 1.5.
+        """
+        self._manage_token(save_token, ignore_cache)
 
     def _manage_token(self, save_token, ignore_cache):
         """Handles token loading, acquisition, and persistence."""
