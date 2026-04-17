@@ -288,6 +288,18 @@ class ApiPublic(object):
                 headers["authorization"] = "Token ********"
             sys.stdout.write(_("HEADERS: {0}\n").format(headers))
 
+    def id(self, endpoint, id_=None):
+        """Gets a single record by ID.
+
+        Args:
+            endpoint (str): API resource.
+            id_ (int/str): Record ID.
+
+        Returns:
+            dict: The record data.
+        """
+        return self.get(endpoint, param=id_)
+
     def url(self, endpoint, id_=None):
         """Builds the full API URL.
 
@@ -370,23 +382,6 @@ class ApiPublic(object):
         elif "text/html" not in r.headers.get("content-type", ""):
             msg += _(", text: {0}").format(r.text)
         raise RuntimeError(msg)
-
-    def id(self, endpoint, param):
-        """Gets the ID of a record. Legacy method for backward compatibility.
-
-        Args:
-            endpoint (str): API resource.
-            param (int/str/dict): Record ID or filters.
-
-        Returns:
-            int: The ID of the record or None if not found.
-        """
-        data = self.get(endpoint, param=param)
-        if isinstance(data, list) and len(data) > 0:
-            return data[0].get("id")
-        elif isinstance(data, dict):
-            return data.get("id")
-        return None
 
     def filter(self, endpoint, params=None):
         """Generator for filtered and paginated API requests.
