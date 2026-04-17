@@ -82,7 +82,7 @@ jobs:
           python3 setup.py bdist_rpm --spec-only
           # The spec file is usually in dist/ or build/bdist.../rpm/SPECS/
           # but we can find it and copy it to SPECS
-          find build -name "*.spec" -exec cp {} ~/rpmbuild/SPECS/ \;
+          find . -name "*.spec" -exec cp {} ~/rpmbuild/SPECS/ \;
           
           # Build RPM
           rpmbuild -ba ~/rpmbuild/SPECS/*.spec
