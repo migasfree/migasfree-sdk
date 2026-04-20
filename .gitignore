@@ -33,3 +33,9 @@ Thumbs.db
 /deb_dist/
 /stdeb.cfg
 *.tar.gz
+
+MANIFEST
+.agent
+.idea
+.ruff_cache
+docs/governance
