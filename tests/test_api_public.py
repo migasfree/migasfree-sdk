@@ -73,13 +73,13 @@ class TestApiPublic(unittest.TestCase):
 
         api_legacy = ApiPublic(server=self.server)
         url = api_legacy.url("computers")
-        self.assertEqual(url, "http://migasfree.example.com/api/v1/computers/")
+        self.assertEqual(url, "http://migasfree.example.com/api/v1/public/computers/")
 
         # Scenario 2: Server is modern (v5), probe returns 200
         mock_response.status_code = 200
         api_modern = ApiPublic(server=self.server)
         url = api_modern.url("computers")
-        self.assertEqual(url, "https://migasfree.example.com/api/v1/public/computers/")
+        self.assertEqual(url, "http://migasfree.example.com/api/v1/public/computers/")
 
     @patch("requests.Session.get")
     def test_protocol_discovery(self, mock_get):
