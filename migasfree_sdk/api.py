@@ -294,16 +294,20 @@ class ApiPublic(object):
             sys.stdout.write(_("HEADERS: {0}\n").format(headers))
 
     def id(self, endpoint, id_=None):
-        """Gets a single record by ID.
+        """Gets a single record or its ID.
 
         Args:
             endpoint (str): API resource.
             id_ (int/str): Record ID.
 
         Returns:
-            dict: The record data.
+            dict/int/str: The record data in v5, or just the ID in v4.
         """
-        return self.get(endpoint, param=id_)
+        data = self.get(endpoint, param=id_)
+        if self.is_v5:
+            return data
+
+        return data.get("id") if isinstance(data, dict) else data
 
     def url(self, endpoint, id_=None):
         """Builds the full API URL.

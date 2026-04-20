@@ -52,13 +52,27 @@ class TestApiPublic(unittest.TestCase):
 
     def test_legacy_aliases(self):
         """Test legacy methods for backward compatibility."""
-        # id() should call get() and return the full record
+        # Scenario 1: v5 (returns the full record)
         with patch("migasfree_sdk.api.ApiPublic.get") as mock_get:
-            record = {"id": 123, "name": "Project 1"}
-            mock_get.return_value = record
-            result = self.api.id("projects", 123)
-            mock_get.assert_called_once_with("projects", param=123)
-            self.assertEqual(result, record)
+            with patch(
+                "migasfree_sdk.api.ApiPublic.is_v5", new_callable=PropertyMock
+            ) as mock_v5:
+                mock_v5.return_value = True
+                record = {"id": 123, "name": "Project 1"}
+                mock_get.return_value = record
+                result = self.api.id("projects", 123)
+                self.assertEqual(result, record)
+
+        # Scenario 2: v4 (returns only the ID)
+        with patch("migasfree_sdk.api.ApiPublic.get") as mock_get:
+            with patch(
+                "migasfree_sdk.api.ApiPublic.is_v5", new_callable=PropertyMock
+            ) as mock_v5:
+                mock_v5.return_value = False
+                record = {"id": 123, "name": "Project 1"}
+                mock_get.return_value = record
+                result = self.api.id("projects", 123)
+                self.assertEqual(result, 123)
 
         # get_server_name should be an alias of get_server
         self.assertEqual(self.api.get_server_name, self.api.get_server)
