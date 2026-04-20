@@ -50,7 +50,7 @@ To ensure a drop-in replacement for SDK v1.5, the following standards are mainta
 
 - **Constructor Positional Stability**: The order of parameters in `ApiToken.__init__` is fixed to support positional initialization.
 - **Legacy Methods**: `id()`, `get_token()`, and `get_server_name()` are preserved as aliases or wrappers.
-- **Hybrid Data Response**: `get()` returns the raw API response in v5 (including pagination metadata) and applies automatic unwrapping in v4 for legacy compatibility.
+- **Hybrid Data Response**: `get()` returns the raw API response in v5 (including pagination metadata) and applies automatic unwrapping in v4 for legacy compatibility. `id()` returns the full record in v5 and only the `id` field in v4.
 - **Lazy Discovery**: The SDK automatically adapts between Migasfree v4 (`/api/v1/`) and v5 (`/api/v1/public/` or `/api/v1/token/`) structures.
 
 ## 6. Critical Rules

@@ -19,6 +19,7 @@ The SDK is designed to be lightweight and has a single mandatory dependency: `re
 * **Safe Subprocesses**: UI prompts (`zenity`, `dialog`, `powershell`) are invoked using list-based arguments to prevent shell injection vulnerabilities.
 * **Dual Compatibility**: We use conditional imports and legacy-friendly syntax to maintain support for Python 2.6 through 3.x.
 * **Hybrid GET behavior**: The `get()` method adapts its return value based on the server version. For **v5**, it returns the raw JSON (including pagination). For **v4**, it automatically unwraps single results and raises legacy exceptions (`Not found`, `Multiple records found`) to ensure backward compatibility with older scripts.
+* **Hybrid ID behavior**: The `id()` method returns the full record (dictionary) in **v5** mode, but only the `id` field in **v4** mode, maintaining legacy script compatibility where `id()` was often used to verify a record's existence or retrieve its primary key.
 
 ## 🧪 Testing
 
