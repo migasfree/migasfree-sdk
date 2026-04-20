@@ -268,7 +268,7 @@ class ApiPublic(object):
         """Checks if the process is running in a TTY or headless environment."""
         return os.environ.get("DISPLAY", "") == ""
 
-    def _trace(self, method, url):
+    def _trace(self, method, url, params=None, data=None):
         """Prints debug information for a request."""
         if self.debug:
             sys.stdout.write(_("Server: {0}\n").format(self.server))
@@ -277,7 +277,17 @@ class ApiPublic(object):
                     _("Active") if self.session.cert else _("Inactive")
                 )
             )
-            sys.stdout.write("{0} {1}\n".format(method, url))
+            # Build full URL with params for tracing
+            full_url = url
+            if params:
+                query = "&".join(["{0}={1}".format(k, v) for k, v in params.items()])
+                full_url += "?" + query
+
+            sys.stdout.write("{0} {1}\n".format(method, full_url))
+
+            if data:
+                sys.stdout.write(_("DATA: {0}\n").format(data))
+
             headers = self.session.headers.copy()
             if "authorization" in headers:
                 headers["authorization"] = "Token ********"
@@ -305,30 +315,11 @@ class ApiPublic(object):
         Returns:
             str: The full URL.
         """
-        if isinstance(self, ApiToken):
-            # Authenticated endpoints consistently use /token/ in v4 and v5
-            base = "{0}://{1}/api/v{2}/token/{3}/".format(
-                self.protocol,
-                self.server,
-                self.version,
-                endpoint,
-            )
-        else:
-            # Public endpoints might need /public/ in v5
-            if self.is_v5:
-                base = "{0}://{1}/api/v{2}/public/{3}/".format(
-                    self.protocol,
-                    self.server,
-                    self.version,
-                    endpoint,
-                )
-            else:
-                base = "{0}://{1}/api/v{2}/{3}/".format(
-                    self.protocol,
-                    self.server,
-                    self.version,
-                    endpoint,
-                )
+        access_type = "token" if isinstance(self, ApiToken) else "public"
+        base = "{0}://{1}/api/v{2}/{3}/{4}/".format(
+            self.protocol, self.server, self.version, access_type, endpoint
+        )
+
         return "{0}{1}/".format(base, id_) if id_ is not None else base
 
     def get(self, endpoint, param=None):
@@ -348,7 +339,7 @@ class ApiPublic(object):
         params = param if isinstance(param, dict) else {}
         url = self.url(endpoint, id_=param if isinstance(param, int) else None)
 
-        self._trace("GET", url)
+        self._trace("GET", url, params=params)
 
         try:
             r = self.session.get(url, params=params)
@@ -403,6 +394,7 @@ class ApiPublic(object):
         """
         url = self.url(endpoint)
         while url:
+            self._trace("GET", url, params=params)
             try:
                 r = self.session.get(url, params=params or {})
                 if r.status_code not in self._ok_codes:
@@ -429,7 +421,7 @@ class ApiPublic(object):
         Raises:
             Exception: If creation fails.
         """
-        self._trace("POST", self.url(endpoint))
+        self._trace("POST", self.url(endpoint), data=data)
         r = self.session.post(self.url(endpoint), data=json.dumps(data))
         if r.status_code == requests.codes.created:
             return r.json().get("id")
@@ -447,7 +439,7 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
-        self._trace("POST", self.url(endpoint))
+        self._trace("POST", self.url(endpoint), data=data)
         return self.session.post(self.url(endpoint), data=json.dumps(data))
 
     def delete(self, endpoint, id_):
@@ -474,7 +466,7 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
-        self._trace("PATCH", self.url(endpoint, id_=id_))
+        self._trace("PATCH", self.url(endpoint, id_=id_), data=data)
         return self.session.patch(self.url(endpoint, id_=id_), data=json.dumps(data))
 
     def put(self, endpoint, id_, data):
@@ -488,7 +480,7 @@ class ApiPublic(object):
         Returns:
             requests.Response: The response object.
         """
-        self._trace("PUT", self.url(endpoint, id_=id_))
+        self._trace("PUT", self.url(endpoint, id_=id_), data=data)
         return self.session.put(self.url(endpoint, id_=id_), data=json.dumps(data))
 
     def get_server(self):
